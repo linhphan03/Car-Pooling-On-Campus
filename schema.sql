@@ -22,16 +22,18 @@ CREATE TABLE Admin (
 );
 
 CREATE TABLE Ride (
-	ride_ID		AUTO_INCREMENT INT PRIMARY KEY,
+	ride_ID			AUTO_INCREMENT INT PRIMARY KEY,
 	destination		VARCHAR(128),
-	available_seats	INT,
+	available_seats		INT,
 	dateTime		VARCHAR(18), --DDMMYYYY-00:00:00--
 	uid			INT,
 	FOREIGN KEY (uid) REFERENCES User(uid)
 );
 
 CREATE TABLE Requests (
-	PRIMARY KEY (ride_ID, passenger_ID),
+	req_id			AUTO_INCREMENT INT PRIMARY KEY,
+	reviewed_id		INT,
+	reviewer_id		INT,
 	FOREIGN KEY (ride_ID) REFERENCES Ride(ride_ID),
 	FOREIGN KEY (passenger_ID) REFERENCES User(uid)
 );
@@ -48,9 +50,9 @@ CREATE TABLE Car (
 );
 
 CREATE TABLE Rates (
+	rate_id			AUTO_INCREMENT INT PRIMARY KEY,
 	reviewed_id		INT,
 	reviewer_id		INT,
-	PRIMARY KEY (reviewed_id, reviewer_id),
 	FOREIGN KEY (reviewed_id) REFERENCES User(uid),
 	FOREIGN KEY (reviewer_id) REFERENCES User(uid),
 	rating			INT,
