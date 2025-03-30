@@ -32,6 +32,27 @@
 
         }
     ?>
+    
+    <!-- Hero Section -->
+    <div class="container-fluid min-vh-100 d-flex align-items-center justify-content-center">
+        <div class="row w-100 justify-content-center">
+            <div class="col-12 col-md-11 col-lg-9"> 
+                <div class="row">
+                    <div class="col-lg-6 d-flex flex-column justify-content-center align-items-center text-center">
+                        <div class="w-100">
+                            <h1 class="display-3 fw-bold">Car Sharing</h1>
+                            <h4 class="mb-4">Convenient and affordable rides</h4>
+                            <p class="lead">Find a ride or offer one to others. Save money, reduce carbon footprint, and make transportation easier at Gettysburg College.</p>
+                        </div>
+                    </div>
+                    <div class="col-lg-6 d-flex justify-content-center align-items-center">
+                        <img src="landing.png" alt="Main Image" class="img-fluid" style="max-height: 400px;">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
 
     <!-- Adds JS to the Application -->
 
