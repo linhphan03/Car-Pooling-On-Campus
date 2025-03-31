@@ -1,8 +1,8 @@
 <?php
 $server = "cray.cs.gettysburg.edu";
-$dbase = "";
-$user = "";
-$pass = "";
+$dbase = "s25_lps";
+$user = "hasasp01";
+$pass = "hagasp01";
 $dsn = "mysql:host=$server;dbname=$dbase"; // data source name
 $options = [
     PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,

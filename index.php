@@ -8,10 +8,10 @@
 </head>
 <body>
     <?php
-        include "navbar.php"; 
-    ?>
+    	session_start();
+        
+       include "navbar.php";
 
-    <?php 
         if($_GET["menu"]){
             $menu = $_GET["menu"];
             switch ($menu){
@@ -19,7 +19,7 @@
                     include("home.php");
                     break;
                 case "profile":
-                    include("profile.php");
+                    include "profile.php";
                     break;
                 case "faq":
                     include("faq.php");
@@ -51,6 +51,10 @@
                 </div>
             </div>
         </div>
+    </div>
+    
+    <div class="jumbotron text-center" style="margin-bottom:0">
+  	<p>Gettysburg CarPooling is a Gettysburg College CS-360 Project developed by Linh Tran, Prabesh Bista, and Spencer Hagan. 2025</p>
     </div>
 
 
