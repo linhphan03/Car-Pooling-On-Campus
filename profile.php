@@ -1,53 +1,94 @@
 <!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Gettysburg CarPool</title>
-    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css" integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
-</head>
 <body>
     <!-- Query for user info -->
-    <?php
-    ?>
+<?php
+	include_once("db_connect.php");
     
-    <!-- Display Section -->
-    <div class="container" style="margin-top:30px">
-  	<div class="row">
-    		<div class="col-sm-4">
-      			<h2>About Me</h2>
-      			<h5>Photo:</h5>
-      			<div class="fakeimg">Placeholder till we have images (If we do that) generic image if they haven't added yet.</div>
-      			<br>
-      			<h3>Info</h3>
-      			<!-- These will pull up some information if someone clicks on them, last 3 rides, next 3 rides, what cars they have added.-->
-      			<ul class="nav nav-pills flex-column">
-        			<li class="nav-item">
-          				<a class="nav-link active" href="#">Upcoming Rides</a>
-        			</li>
-        			<li class="nav-item">
-          				<a class="nav-link" href="#">Recent Rides</a>
-        			</li>
-        			<li class="nav-item">
-          				<a class="nav-link" href="#">Cars</a>
-        			</li>
-      			</ul>
-      			<hr class="d-sm-none">
-    		</div>
-    		<div class="col-sm-8">
-      			<h2>(name of user)</h2>
-      			<h5>Account created on: (date)</h5>
-      			<p>Some text..</p>
-      			<p>This a placeholder until I create the query to grab and display user info. This will be for the currently logged in user. Next step after this will be to display other user's profiles.</p>
-      			<br>
-    			</div>
-  		</div>
+    	$query = "SELECT * FROM User WHERE uid=1";
+    	//print "<P>$query</P>";
+    	
+    	$res = $db->query($query);
+    	
+    	if($res != FALSE) {
+    		while($row = $res->fetch()) {
+			
+			$uid = $row['uid'];
+			$pnum = $row['pnum'];
+			$email = $row['email'];
+			$name = $row['name'];
+			$created_at = $row['created_at'];
+		}
+?>
+    
+	<!-- Display Section -->
+	<div class='container' style='margin-top:30px'>
+		<div class='row'>
+    			<div class='col-sm-4'>
+      				<h2>About Me</h2>
+      				<h5>Photo:</h5>
+      				<div class='fakeimg'>Placeholder till we have images (If we do that) generic image if they haven't added yet.</div>
+      				<br>
+      				<h3>Info</h3>
+      				<!-- These will pull up some information if someone clicks on them, last 3 rides, next 3 rides, what cars they have added.-->
+      				<ul class='nav nav-pills flex-column'>
+        				<li class='nav-item'>
+          					<a class='nav-link active' href='#'>Upcoming Rides</a>
+        				</li>
+        				<li class='nav-item'>
+          					<a class='nav-link' href='#'>Recent Rides</a>
+		 			</li>
+		 			<li class='nav-item'>
+		   				<a class='nav-link' href='#'>Cars</a>
+		 			</li>
+	      			</ul>
+	      			<hr class='d-sm-none'>
+	    		</div>
+	    		<div class='col-sm-8'>
+	    		<div class='col-sm-8' id='user-info'>
+    				<!-- User info will be displayed here -->
+			</div>
+			<div id='cars-table' style='display:none;'>
+    				<!-- Car table will be displayed here -->
+			</div>
+<?php
+	      			print "<h2>$name</h2>";
+	      			print "<h5>Account created on: $created_at</h5>";
+	      			print "<p>Phone number: $pnum</p>";
+	      			print "<p>Email: $email</p>";
+?>
+	      			<p>This a placeholder until I create the query to grab and display user info. This will be for the currently logged in user. Next step after this will be to display other user's profiles.</p>
+	      			<br>
+	    		</div>
+	  	</div>
 	</div>
-
-    <!-- Adds JS to the Application -->
-
-    <script src="https://code.jquery.com/jquery-3.4.1.slim.min.js" integrity="sha384-J6qa4849blE2+poT4WnyKhv5vZF5SrPo0iEjwBvKU7imGFAV0wwj1yYfoRSJoZ+n" crossorigin="anonymous"></script>
-  <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js" integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo" crossorigin="anonymous"></script>
-  <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js" integrity="sha384-wfSDF2E50Y2D1uUdj0O3uMBJnjuUD4Ih7YwaYd1iqfktj0Uod8GCExl3Og8ifwB6" crossorigin="anonymous"></script>
+<?php
+	}
+	else {
+		print "<P>Failed to load user profile! Please Reload!</P>";
+	}
+?>
+	
 </body>
 </html>
+
+<?php
+function genCarTable() {
+	$query = "SELECT * FROM Cars WHERE user_id = $uid"; // Adjust the query as needed
+	$res = $db->query($query);
+
+	if ($res != FALSE) {
+    		echo "<table class='table'>";
+    		echo "<thead><tr><th>Car ID</th><th>Model</th><th>Year</th></tr></thead><tbody>";
+    		while ($row = $res->fetch()) {
+        		echo "<tr>";
+        		echo "<td>" . $row['make'] . "</td>";
+        		echo "<td>" . $row['model'] . "</td>";
+        		echo "<td>" . $row['color'] . "</td>";
+        		echo "</tr>";
+    		}	
+    		echo "</tbody></table>";
+	} else {
+    		echo "No cars found.";
+	}
+}
+?>
