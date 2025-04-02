@@ -77,18 +77,18 @@ function genCarTable() {
 	$res = $db->query($query);
 
 	if ($res != FALSE) {
-    		echo "<table class='table'>";
-    		echo "<thead><tr><th>Car ID</th><th>Model</th><th>Year</th></tr></thead><tbody>";
+    		print "<table class='table'>";
+    		print "<thead><tr><th>Car ID</th><th>Model</th><th>Year</th></tr></thead><tbody>";
     		while ($row = $res->fetch()) {
-        		echo "<tr>";
-        		echo "<td>" . $row['make'] . "</td>";
-        		echo "<td>" . $row['model'] . "</td>";
-        		echo "<td>" . $row['color'] . "</td>";
-        		echo "</tr>";
+        		print "<tr>";
+        		print "<td>" . $row['make'] . "</td>";
+        		print "<td>" . $row['model'] . "</td>";
+        		print "<td>" . $row['color'] . "</td>";
+        		print "</tr>";
     		}	
-    		echo "</tbody></table>";
+    		print "</tbody></table>";
 	} else {
-    		echo "No cars found.";
+    		print "No cars found.";
 	}
 }
 ?>
