@@ -1,11 +1,47 @@
+<!-- SPENCER HAGAN
+Profile Page to display the information of a given user, such as their cars,
+the last 3 rides they were in, the next 3 rides they're in, and their rating.
+
+-->
+
 <!DOCTYPE html>
 <body>
+
+<script src="scripts.js"></script>
+ 
     <!-- Query for user info -->
 <?php
 	include_once("db_connect.php");
+	
+	$uid = $_SESSION['uid'];
     
-    	$query = "SELECT * FROM User WHERE uid=1";
+    	$query = "SELECT * FROM User WHERE uid=$uid";
     	//print "<P>$query</P>";
+    	
+    	$rateQuery = "SELECT AVG(rating) AS Urating FROM Rates WHERE reviewed_id=$uid GROUP BY reviewed_id";
+    	$rateRes = $db->query($rateQuery);
+    	
+    	$reviewQuery = "SELECT reviewer_id, rating, review FROM Rates WHERE reviewed_id=$uid";
+    	$revsRes = $db->query($reviewQuery);
+    	
+    	$carsQuery = "SELECT * FROM Car WHERE uid=$uid";
+    	$carsRes = $db->query($carsQuery);
+    	
+    	//Previous rides user either drived for or were a passenger in
+    	$lastRidesQuery = "SELECT * 
+    			     FROM Ride JOIN Requests ON Ride.ride_ID=Requests.ride_ID 
+    			     WHERE Ride.uid=$uid OR Requests.passenger_ID=$uid
+    			     ORDER BY dateTime DESC
+    			     LIMIT 3";
+    	$lastRidesRes = $db->query($lastRidesQuery);
+    	
+    	//Upcoming Rides the user is the driver for
+    	$nextRidesQuery = "SELECT destination, dateTime 
+    			     FROM Ride 
+    			     WHERE uid=$uid AND dateTime > NOW() 
+    			     ORDER BY dateTime ASC 
+    			     LIMIT 3";
+    	$nextRidesRes = $db->query($nextRidesQuery);
     	
     	$res = $db->query($query);
     	
@@ -20,47 +56,89 @@
 		}
 ?>
     
-	<!-- Display Section -->
-	<div class='container' style='margin-top:30px'>
-		<div class='row'>
-    			<div class='col-sm-4'>
-      				<h2>About Me</h2>
-      				<h5>Photo:</h5>
-      				<div class='fakeimg'>Placeholder till we have images (If we do that) generic image if they haven't added yet.</div>
-      				<br>
-      				<h3>Info</h3>
-      				<!-- These will pull up some information if someone clicks on them, last 3 rides, next 3 rides, what cars they have added.-->
-      				<ul class='nav nav-pills flex-column'>
-        				<li class='nav-item'>
-          					<a class='nav-link active' href='#'>Upcoming Rides</a>
-        				</li>
-        				<li class='nav-item'>
-          					<a class='nav-link' href='#'>Recent Rides</a>
-		 			</li>
-		 			<li class='nav-item'>
-		   				<a class='nav-link' href='#'>Cars</a>
-		 			</li>
-	      			</ul>
-	      			<hr class='d-sm-none'>
-	    		</div>
-	    		<div class='col-sm-8'>
-	    		<div class='col-sm-8' id='user-info'>
-    				<!-- User info will be displayed here -->
-			</div>
-			<div id='cars-table' style='display:none;'>
-    				<!-- Car table will be displayed here -->
-			</div>
-<?php
-	      			print "<h2>$name</h2>";
-	      			print "<h5>Account created on: $created_at</h5>";
-	      			print "<p>Phone number: $pnum</p>";
-	      			print "<p>Email: $email</p>";
-?>
-	      			<p>This a placeholder until I create the query to grab and display user info. This will be for the currently logged in user. Next step after this will be to display other user's profiles.</p>
-	      			<br>
-	    		</div>
-	  	</div>
-	</div>
+<!-- Display Section -->
+<div class='container' style='margin-top:30px'>
+    <div class='row'>
+        <div class='col-sm-4'>
+            <img src="profile.jpg" class="img-thumbnail" width="200" height="200">
+            <br>
+            <h3>Rating:</h3>
+            <?php
+                if ($rateRes->rowCount() > 0) {
+                    while ($rate = $rateRes->fetch()) {
+                        print "<p>" . $rate['Urating'] . "/5" . "</p>";
+                    }
+                } else {
+                    print "<li>No rating found.</li>";
+                }
+            ?>
+            <hr class='d-sm-none'>
+            <h3>Recent Reviews:</h3>
+            <?php
+                if ($revsRes->rowCount() > 0) {
+                    while ($revs = $revsRes->fetch()) {
+                        print "<p>From " . $revs['reviewer_id'] . ": Rated " . $revs['rating'] . " stars, saying '" . $revs['review'] . "'" . "</p>";
+                        print "<hr class='d-sm-none'>";
+                    }
+                } else {
+                    print "<li>No reviews found.</li>";
+                }
+            ?>
+        </div>
+        <div class='col-sm-8'>
+            <div class='col-sm-8' id='user-info'>
+                <!-- User info will be displayed here -->
+                <h2><?php print $name; ?></h2>
+                <h5>Account created on: <?php print $created_at; ?></h5>
+                <p>Phone number: <?php print $pnum; ?></p>
+                <p>Email: <?php print $email; ?></p>
+            </div>
+            <div id='cars-table'>
+                <h3>Cars Owned</h3>
+                <ul>
+                <?php
+                if ($carsRes->rowCount() > 0) {
+                    while ($car = $carsRes->fetch()) {
+                        print "<li>Plate: " . $car['license_plate'] . " " . $car['color'] . " " . $car['make'] . " " . $car['model'] . "</li>";
+                    }
+                } else {
+                    print "<li>No cars found.</li>";
+                }
+                ?>
+                </ul>
+            </div>
+            <div id='last-rides'>
+                <h3>Last 3 Rides</h3>
+                <ul>
+                <?php
+                if ($lastRidesRes->rowCount() > 0) {
+                    while ($ride = $lastRidesRes->fetch()) {
+                        print "<li>" . $ride['destination'] . " on " . $ride['dateTime'] . "</li>";
+                    }
+                } else {
+                    print "<li>No rides found.</li>";
+                }
+                ?>
+                </ul>
+            </div>
+            <div id='next-rides'>
+                <h3>Next 3 Scheduled Rides</h3>
+                <ul>
+                <?php
+                if ($nextRidesRes->rowCount() > 0) {
+                    while ($ride = $nextRidesRes->fetch()) {
+                        print "<li>" . $ride['destination'] . " on " . $ride['dateTime'] . "</li>";
+                    }
+                } else {
+                    print "<li>No upcoming rides found.</li>";
+                }
+                ?>
+                </ul>
+            </div>
+            <br>
+        </div>
+    </div>
+</div>
 <?php
 	}
 	else {
@@ -70,25 +148,3 @@
 	
 </body>
 </html>
-
-<?php
-function genCarTable() {
-	$query = "SELECT * FROM Cars WHERE user_id = $uid"; // Adjust the query as needed
-	$res = $db->query($query);
-
-	if ($res != FALSE) {
-    		print "<table class='table'>";
-    		print "<thead><tr><th>Car ID</th><th>Model</th><th>Year</th></tr></thead><tbody>";
-    		while ($row = $res->fetch()) {
-        		print "<tr>";
-        		print "<td>" . $row['make'] . "</td>";
-        		print "<td>" . $row['model'] . "</td>";
-        		print "<td>" . $row['color'] . "</td>";
-        		print "</tr>";
-    		}	
-    		print "</tbody></table>";
-	} else {
-    		print "No cars found.";
-	}
-}
-?>
