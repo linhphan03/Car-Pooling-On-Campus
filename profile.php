@@ -5,6 +5,32 @@ the last 3 rides they were in, the next 3 rides they're in, and their rating.
 -->
 
 <!DOCTYPE html>
+<html>
+<head>
+<title>User Profile</title>
+<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css">
+<style>
+  .profile-card {
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    padding: 40px;
+    margin-bottom: 20px;
+  }
+  .profile-info-card {
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    padding: 40px;
+    margin-bottom: 20px;
+    width: 500px;
+  }
+  .profile-image {
+    width: 150px;
+    height: 150px;
+    border-radius: 50%;
+    object-fit: cover;
+  }
+</style>
+</head>
 <body>
 
 <script src="scripts.js"></script>
@@ -59,20 +85,34 @@ the last 3 rides they were in, the next 3 rides they're in, and their rating.
 <!-- Display Section -->
 <div class='container' style='margin-top:30px'>
     <div class='row'>
-        <div class='col-sm-4'>
-            <img src="profile.jpg" class="img-thumbnail" width="200" height="200">
+        <div class='col-md-2'>
+        	<div class="profile-card">
+            		<img src="profile.jpg" alt="Profile Picture" class="profile-image img-thumbnail">
+            	</div>
             <br>
-            <h3>Rating:</h3>
-            <?php
+            <div class="profile-card">
+            	<h3>Rating:</h3>
+            	<?php
                 if ($rateRes->rowCount() > 0) {
                     while ($rate = $rateRes->fetch()) {
                         print "<p>" . $rate['Urating'] . "/5" . "</p>";
                     }
                 } else {
-                    print "<li>No rating found.</li>";
+                    print "<p>No rating found.</p>";
                 }
             ?>
+            </div>
             <hr class='d-sm-none'>
+        </div>
+        <div class='col-sm-8'>
+            <div class="col-sm-8 profile-info-card" id='user-info'>
+                <!-- User info will be displayed here -->
+                <h2><?php print $name; ?></h2>
+                <h5>Account created on: <?php print $created_at; ?></h5>
+                <p>Phone number: <?php print $pnum; ?></p>
+                <p>Email: <?php print $email; ?></p>
+            </div>
+            <div class="profile-card">
             <h3>Recent Reviews:</h3>
             <?php
                 if ($revsRes->rowCount() > 0) {
@@ -81,33 +121,32 @@ the last 3 rides they were in, the next 3 rides they're in, and their rating.
                         print "<hr class='d-sm-none'>";
                     }
                 } else {
-                    print "<li>No reviews found.</li>";
+                    print "<p>No reviews found.</p>";
                 }
             ?>
-        </div>
-        <div class='col-sm-8'>
-            <div class='col-sm-8' id='user-info'>
-                <!-- User info will be displayed here -->
-                <h2><?php print $name; ?></h2>
-                <h5>Account created on: <?php print $created_at; ?></h5>
-                <p>Phone number: <?php print $pnum; ?></p>
-                <p>Email: <?php print $email; ?></p>
             </div>
-            <div id='cars-table'>
+            <div class="col-sm-8 profile-info-card" id='cars-table'>
                 <h3>Cars Owned</h3>
                 <ul>
                 <?php
                 if ($carsRes->rowCount() > 0) {
+                print "<table class='table table-bordered'>";
+                print "<tr><th> Plate </th><th> Color </th><th> Make </th><th> Model </th></tr>";
                     while ($car = $carsRes->fetch()) {
-                        print "<li>Plate: " . $car['license_plate'] . " " . $car['color'] . " " . $car['make'] . " " . $car['model'] . "</li>";
+                    	   $plate = $car['license_plate'];
+                    	   $color = $car['color'];
+                    	   $make  = $car['make'];
+                    	   $model = $car['model'];
+                        print "<tr><th> $plate </th><th> $color </th><th> $make </th><th> $model </th></tr>";
                     }
+                    print "</table>";
                 } else {
                     print "<li>No cars found.</li>";
                 }
                 ?>
                 </ul>
             </div>
-            <div id='last-rides'>
+            <div class="col-sm-8 profile-info-card" id='last-rides'>
                 <h3>Last 3 Rides</h3>
                 <ul>
                 <?php
@@ -121,7 +160,7 @@ the last 3 rides they were in, the next 3 rides they're in, and their rating.
                 ?>
                 </ul>
             </div>
-            <div id='next-rides'>
+            <div class="col-sm-8 profile-info-card" id='next-rides'>
                 <h3>Next 3 Scheduled Rides</h3>
                 <ul>
                 <?php

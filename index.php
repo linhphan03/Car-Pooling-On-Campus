@@ -9,6 +9,9 @@
 <body>
     <?php
     	session_start();
+    	
+    	$uid = 7;
+    	$_SESSION['uid'] = $uid;
         
        include "navbar.php";
 
@@ -19,7 +22,7 @@
                     include("home.php");
                     break;
                 case "profile":
-                    include "profile.php";
+                    include("profile.php");
                     break;
                 case "faq":
                     include("faq.php");
