@@ -10,7 +10,7 @@
     <?php
     	session_start();
     	
-    	$uid = 7;
+    	$uid = 3;
     	$_SESSION['uid'] = $uid;
         
        include "navbar.php";
