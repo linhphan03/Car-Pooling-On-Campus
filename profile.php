@@ -84,99 +84,98 @@ the last 3 rides they were in, the next 3 rides they're in, and their rating.
     
 <!-- Display Section -->
 <div class='container' style='margin-top:30px'>
-    <div class='row'>
-        <div class='col-md-2'>
-        	<div class="profile-card">
-            		<img src="profile.jpg" alt="Profile Picture" class="profile-image img-thumbnail">
-            	</div>
-            <br>
-            <div class="profile-card">
-            	<h3>Rating:</h3>
-            	<?php
-                if ($rateRes->rowCount() > 0) {
-                    while ($rate = $rateRes->fetch()) {
-                        print "<p>" . $rate['Urating'] . "/5" . "</p>";
-                    }
-                } else {
-                    print "<p>No rating found.</p>";
-                }
-            ?>
-            </div>
-            <hr class='d-sm-none'>
-        </div>
-        <div class='col-sm-8'>
-            <div class="col-sm-8 profile-info-card" id='user-info'>
-                <!-- User info will be displayed here -->
-                <h2><?php print $name; ?></h2>
-                <h5>Account created on: <?php print $created_at; ?></h5>
-                <p>Phone number: <?php print $pnum; ?></p>
-                <p>Email: <?php print $email; ?></p>
-            </div>
-            <div class="profile-card">
-            <h3>Recent Reviews:</h3>
-            <?php
-                if ($revsRes->rowCount() > 0) {
-                    while ($revs = $revsRes->fetch()) {
-                        print "<p>From " . $revs['reviewer_id'] . ": Rated " . $revs['rating'] . " stars, saying '" . $revs['review'] . "'" . "</p>";
-                        print "<hr class='d-sm-none'>";
-                    }
-                } else {
-                    print "<p>No reviews found.</p>";
-                }
-            ?>
-            </div>
-            <div class="col-sm-8 profile-info-card" id='cars-table'>
-                <h3>Cars Owned</h3>
-                <ul>
-                <?php
-                if ($carsRes->rowCount() > 0) {
-                print "<table class='table table-bordered'>";
-                print "<tr><th> Plate </th><th> Color </th><th> Make </th><th> Model </th></tr>";
-                    while ($car = $carsRes->fetch()) {
-                    	   $plate = $car['license_plate'];
-                    	   $color = $car['color'];
-                    	   $make  = $car['make'];
-                    	   $model = $car['model'];
-                        print "<tr><th> $plate </th><th> $color </th><th> $make </th><th> $model </th></tr>";
-                    }
-                    print "</table>";
-                } else {
-                    print "<li>No cars found.</li>";
-                }
-                ?>
-                </ul>
-            </div>
-            <div class="col-sm-8 profile-info-card" id='last-rides'>
-                <h3>Last 3 Rides</h3>
-                <ul>
-                <?php
-                if ($lastRidesRes->rowCount() > 0) {
-                    while ($ride = $lastRidesRes->fetch()) {
-                        print "<li>" . $ride['destination'] . " on " . $ride['dateTime'] . "</li>";
-                    }
-                } else {
-                    print "<li>No rides found.</li>";
-                }
-                ?>
-                </ul>
-            </div>
-            <div class="col-sm-8 profile-info-card" id='next-rides'>
-                <h3>Next 3 Scheduled Rides</h3>
-                <ul>
-                <?php
-                if ($nextRidesRes->rowCount() > 0) {
-                    while ($ride = $nextRidesRes->fetch()) {
-                        print "<li>" . $ride['destination'] . " on " . $ride['dateTime'] . "</li>";
-                    }
-                } else {
-                    print "<li>No upcoming rides found.</li>";
-                }
-                ?>
-                </ul>
-            </div>
-            <br>
-        </div>
-    </div>
+	<div class='row'>
+		<div class='col-md-2'>
+			<div class="profile-card">
+				<img src="profile.jpg" alt="Profile Picture" class="profile-image img-thumbnail">
+			</div>
+			<br>
+			<div class="profile-card">
+				<h3>Rating:</h3>
+				<?php
+				if ($rateRes->rowCount() > 0) {
+					while ($rate = $rateRes->fetch()) {
+						print "<p>" . $rate['Urating'] . "/5" . "</p>";
+					}
+				} else {
+					print "<p>No rating found.</p>";
+				}
+				?>
+			</div>
+			<hr class='d-sm-none'>
+		</div>
+		<div class='col-sm-8'>
+			<div class="col-sm-8 profile-info-card" id='user-info'>
+				<!-- User info will be displayed here -->
+				<h2><?php print $name; ?></h2>
+				<h5>Account created on: <?php print $created_at; ?></h5>
+				<p>Phone number: <?php print $pnum; ?></p>
+				<p>Email: <?php print $email; ?></p>
+			</div>
+			<div class="profile-card">
+				<h3>Recent Reviews:</h3>
+				<?php
+				if ($revsRes->rowCount() > 0) {
+					while ($revs = $revsRes->fetch()) {
+						print "<p>From " . $revs['reviewer_id'] . ": Rated " . $revs['rating'] . " stars, saying '" . $revs['review'] . "'" . "</p>";
+					}
+				} else {
+					print "<p>No reviews found.</p>";
+				}
+				?>
+			</div>
+			<div class="col-sm-8 profile-info-card" id='cars-table'>
+				<h3>Cars Owned</h3>
+				<ul>
+				<?php
+				if ($carsRes->rowCount() > 0) {
+					print "<table class='table table-bordered'>";
+					print "<tr><th> Plate </th><th> Color </th><th> Make </th><th> Model </th></tr>";
+					while ($car = $carsRes->fetch()) {
+						$plate = $car['license_plate'];
+						$color = $car['color'];
+						$make  = $car['make'];
+						$model = $car['model'];
+						print "<tr><th> $plate </th><th> $color </th><th> $make </th><th> $model </th></tr>";
+					}
+					print "</table>";
+				} else {
+					print "<li>No cars found.</li>";
+				}
+				?>
+				</ul>
+			</div>
+			<div class="col-sm-8 profile-info-card" id='last-rides'>
+				<h3>Last 3 Rides</h3>
+				<ul>
+				<?php
+				if ($lastRidesRes->rowCount() > 0) {
+					while ($ride = $lastRidesRes->fetch()) {
+						print "<li>" . $ride['destination'] . " on " . $ride['dateTime'] . "</li>";
+					}
+				} else {
+					print "<li>No rides found.</li>";
+				}
+				?>
+				</ul>
+			</div>
+			<div class="col-sm-8 profile-info-card" id='next-rides'>
+				<h3>Next 3 Scheduled Rides</h3>
+				<ul>
+				<?php
+				if ($nextRidesRes->rowCount() > 0) {
+					while ($ride = $nextRidesRes->fetch()) {
+						print "<li>" . $ride['destination'] . " on " . $ride['dateTime'] . "</li>";
+					}
+				} else {
+					print "<li>No upcoming rides found.</li>";
+				}
+				?>
+				</ul>
+			</div>
+			<br>
+		</div>
+	</div>
 </div>
 <?php
 	}
