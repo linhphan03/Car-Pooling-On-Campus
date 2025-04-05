@@ -20,15 +20,23 @@ the last 3 rides they were in, the next 3 rides they're in, and their rating.
 	
 	$uid = $_SESSION['uid'];
     
+    	//User Info
     	$query = "SELECT * FROM User WHERE uid=$uid";
-    	//print "<P>$query</P>";
     	
+    	//User's rating
     	$rateQuery = "SELECT ROUND(AVG(rating), 2) AS Urating FROM Rates WHERE reviewed_id=$uid GROUP BY reviewed_id";
     	$rateRes = $db->query($rateQuery);
     	
-    	$reviewQuery = "SELECT reviewer_id, rating, review FROM Rates WHERE reviewed_id=$uid";
+    	//Reviews of the user
+    	$reviewQuery = "SELECT reviewer_id, rating, review 
+    			  FROM Rates 
+    			  WHERE reviewed_id=$uid 
+    			  ORDER BY dateTime 
+    			  DESC
+    			  LIMIT 3";
     	$revsRes = $db->query($reviewQuery);
     	
+    	//Cars the user has
     	$carsQuery = "SELECT * FROM Car WHERE uid=$uid";
     	$carsRes = $db->query($carsQuery);
     	
@@ -88,6 +96,7 @@ the last 3 rides they were in, the next 3 rides they're in, and their rating.
 			<p>Email: <?php print $email; ?></p>
 		</div>
 		<div class='col-sm-4'>
+			<!-- Display the last three most recent reviews of the user-->
 			<h3>Recent Reviews</h3>
 			<ul id="reviews" class="list-group">
 			<?php
@@ -127,6 +136,7 @@ the last 3 rides they were in, the next 3 rides they're in, and their rating.
 			</ul>
 		</div>
 		<div class='col-sm-4'>
+			<!-- Display the last three most recent rides user was in, passenger or driver-->
 			<button type="button" class="btn btn-info" data-toggle="collapse" data-target="#lastRides">Recent Rides</button>
 			<ul id="lastRides" class="collapse list-group">
 			<?php
@@ -141,6 +151,7 @@ the last 3 rides they were in, the next 3 rides they're in, and their rating.
 			</ul>
 		</div>
 		<div class='col-sm-4'>
+			<!-- Display the next three rides where the user is the driver, if any-->
 			<button type="button" class="btn btn-info" data-toggle="collapse" data-target="#nextRides">Upcoming Rides</button>
 			<ul id="nextRides" class="collapse list-group">
 			<?php

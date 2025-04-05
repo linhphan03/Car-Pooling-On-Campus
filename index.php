@@ -10,10 +10,19 @@
     <?php
     	session_start();
     	
-    	$uid = 3;
-    	$_SESSION['uid'] = $uid;
-        
-       include "navbar.php";
+       include("navbar.php");
+       
+       if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['uid'])) {
+    		// Sanitize the input to prevent XSS or other attacks
+    		$uid = htmlspecialchars(trim($_POST['uid']));
+    
+    		// Set the session variable
+    		$_SESSION['uid'] = $uid;
+
+    		// Redirect to the same page or another page if needed
+    		header("refresh:1;url=index.php");
+    		exit();
+	}
 
         if($_GET["menu"]){
             $menu = $_GET["menu"];
@@ -29,6 +38,13 @@
                     break;
                 case "about":
                     include("about.php");
+                    break;
+                case "login":
+                    
+                    break;
+                case "logout":
+                    header("refresh:1;url=index.php");
+		      unset($_SESSION['uid']);
                     break;
             }
         }else{
