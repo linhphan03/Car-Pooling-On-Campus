@@ -15,7 +15,7 @@ if (!$fromDate || !$toDate) {
 
 try {
     $stmt = $db->prepare("SELECT ride_ID, destination, available_seats, dateTime, uid 
-                          FROM rides 
+                          FROM Ride 
                           WHERE dateTime BETWEEN :fromDate AND :toDate 
                           ORDER BY dateTime ASC");
     $stmt->execute([
