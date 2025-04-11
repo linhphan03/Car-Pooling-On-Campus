@@ -19,7 +19,7 @@
     		// Set the session variable
     		$_SESSION['uid'] = $uid;
 
-    		// Redirect to the same page or another page if needed
+    		// Redirect to the same page, gives navbar time to switch to logged_in version
     		header("refresh:1;url=index.php");
     		exit();
 	}
@@ -39,10 +39,8 @@
                 case "about":
                     include("about.php");
                     break;
-                case "login":
-                    
-                    break;
                 case "logout":
+                    //refresh after unsetting uid, gives navbar time to switch to non-logged-in version
                     header("refresh:1;url=index.php");
 		            unset($_SESSION['uid']);
                     break;

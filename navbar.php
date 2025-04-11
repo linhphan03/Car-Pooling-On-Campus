@@ -8,6 +8,7 @@
 			<li class="nav-item active">
 				<a class="nav-link" href="index.php?menu=home">Home</a>
 			</li>
+			<!-- SPENCER: Checking Session for a signed in user, displays differently based on this -->
 			<?php if (!isset($_SESSION['uid'])) { ?>
 			<li class="nav-item">
 				<a class="nav-link" href="index.php?menu=profile">Profile</a>
@@ -25,6 +26,7 @@
 			</li>
 		</ul>
 		<ul class="navbar-nav ml-auto">
+			<!-- SPENCER: Checking Session for a signed in user, displays differently based on this -->
 			<?php if (!isset($_SESSION['uid'])) { ?>
 				<form class="form-inline" action="index.php" method="POST">
 					<div class="form-group">
