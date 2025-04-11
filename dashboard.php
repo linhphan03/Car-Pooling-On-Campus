@@ -1,4 +1,11 @@
-<input?php ?>
+<?php 
+include ("db_connect.php");
+$query = "SELECT * FROM Ride";
+$result = $db->query($query);
+
+print_r($result->fetchAll());
+
+?>
     <!DOCTYPE html>
     <html lang="en">
 

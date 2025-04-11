@@ -44,7 +44,7 @@
                     break;
                 case "logout":
                     header("refresh:1;url=index.php");
-		      unset($_SESSION['uid']);
+		            unset($_SESSION['uid']);
                     break;
             }
         }else{
