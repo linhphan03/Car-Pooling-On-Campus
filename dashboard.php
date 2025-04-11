@@ -41,14 +41,14 @@
                     </div>
                     <div class="rideDate">
                         <h2>Ride Date</h2>
-                        <form class="formDate" action="#" method="POST">
+                        <form class="formDate" action="rides.php" method="GET">
                             <div class="fromDate">
                                 <label>From:</label>
-                                <input type="date" />
+                                <input type="date" name="fromDate" required />
                             </div>
                             <div class="toDate">
                                 <label>To: </label>
-                                <input type="date" />
+                                <input type="date" name="toDate" required />
                             </div>
                             <input class="submitButton" type="submit" value="Search Ride" />
                         </form>
@@ -66,7 +66,7 @@
                         </div>
                         <div class="sgcard">
                             <h3>Cub To Target -Hanover</h3>
-                            <h3>03/6/2025</h3>
+                                                      <h3>03/6/2025</h3>
 
                             <h6>3 Seats Remaining</h6>
                             <a href="#">Read More</a>
