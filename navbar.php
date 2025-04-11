@@ -5,19 +5,24 @@
 	</button>
 	<div class="collapse navbar-collapse" id="navbarNav">
 		<ul class="navbar-nav">
-			<li class="nav-item active">
+			<!-- If the user has not logged in, showing hust the home page, if logged in dashboard will be shown -->
+			<?php if (isset($_SESSION['uid'])){?>
+				<li class="nav-item active">
+				<a class="nav-link" href="index.php?menu=Dashboard">Dashboard</a>
+				</li>
+			<?php }else{?>
+				<li class="nav-item active">
 				<a class="nav-link" href="index.php?menu=home">Home</a>
-			</li>
+				</li>
+			<?php } ?>
+
 			<!-- SPENCER: Checking Session for a signed in user, displays differently based on this -->
-			<?php if (!isset($_SESSION['uid'])) { ?>
+			<?php if (isset($_SESSION['uid'])) { ?>
 			<li class="nav-item">
 				<a class="nav-link" href="index.php?menu=profile">Profile</a>
 			</li>
-			<?php } else { ?>
-			<li class="nav-item active">
-				<a class="nav-link" href="index.php?menu=profile">Profile</a>
-			</li>
-			<?php } ?>
+			<?php 
+			}?>
 			<li class="nav-item">
 				<a class="nav-link" href="index.php?menu=faq">FAQ/Support</a>
 			</li>
