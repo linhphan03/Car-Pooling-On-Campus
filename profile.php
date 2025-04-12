@@ -1,24 +1,10 @@
-<!-- SPENCER HAGAN
-Profile Page to display the information of a given user, such as their cars,
-the last 3 rides they were in, the next 3 rides they're in, and their rating.
-
--->
-
-<!DOCTYPE html>
-<html>
-<head>
-<title>User Profile</title>
-<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css">
-</head>
-<body>
-
-<script src="scripts.js"></script>
- 
-    <!-- Query for user info -->
 <?php
-	include_once("db_connect.php");
+//SPENCER HAGAN
+//	Profile Page to display the information of a given user, such as their cars,
+//	the last 3 rides they were in, the next 3 rides they're in, and their rating.
 	
-	$uid = $_SESSION['uid'];
+function genUserProfile($db, $user) {
+	$uid = $user;
     
     	//User Info
     	$query = "SELECT * FROM User WHERE uid=$uid";
@@ -173,7 +159,5 @@ the last 3 rides they were in, the next 3 rides they're in, and their rating.
 	else {
 		print "<P>Failed to load user profile! Please Reload!</P>";
 	}
+}
 ?>
-	
-</body>
-</html>

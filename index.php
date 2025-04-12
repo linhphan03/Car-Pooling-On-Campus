@@ -14,7 +14,9 @@
     <?php
     session_start();
 
+    include("db_connect.php");
     include("navbar.php");
+    include("profile.php");
 
     if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['uid'])) {
         // Sanitize the input to prevent XSS or other attacks
@@ -35,7 +37,7 @@
                 include("home.php");
                 break;
             case "profile":
-                include("profile.php");
+                genUserProfile($db, $_SESSION['uid']);
                 break;
             case "faq":
                 include("faq.php");
