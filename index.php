@@ -17,6 +17,7 @@
     include("db_connect.php");
     include("navbar.php");
     include("profile.php");
+    include("RideForm.php");
 
     if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['uid'])) {
         // Sanitize the input to prevent XSS or other attacks
@@ -53,6 +54,12 @@
                 header("refresh:1;url=index.php");
                 unset($_SESSION['uid']);
                 break;
+            case "fmRide":
+            	  genRideForm($db);
+            	  break;
+            case "procNewRide":
+            	  processRide($db, $_SESSION['uid'], $_POST);
+            	  break;
         }
     } else {
         if (isset($_SESSION['uid'])) {

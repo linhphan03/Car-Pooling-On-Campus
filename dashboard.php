@@ -6,7 +6,9 @@
 
         <!-- New Ride Button (unchanged) -->
         <div class="new-ride">
-            <button class="new-ride-btn">New Ride +</button>
+            <a href="index.php?menu=fmRide">
+            	<button class="new-ride-btn">New Ride +</button>
+            </a>
         </div>
 
         <!-- Ride To List -->
