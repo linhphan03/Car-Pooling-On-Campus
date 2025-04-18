@@ -14,19 +14,29 @@
         <!-- Ride To List -->
         <div class="ride-to-section">
             <h2>Ride to</h2>
+            <form id="rideToForm" action="rides.php" method="GET">
+                <input type="hidden" id="ride-to" name="ride-to" value="" />
+            </form>
+
             <ul class="ride-to-list">
-                <li>Target - Hanover</li>
-                <li>Walmart - Gettysburg</li>
-                <li>Harrisburg Intl. Airport</li>
-                <li>Target - Chambersburg</li>
+                <li onclick="submitRideTo('Target')">Target</li>
+                <li onclick="submitRideTo('Walmart')">Walmart</li>
+                <li onclick="submitRideTo('Dulles International Airport')">Dulles International Airport</li>
+                <li onclick="submitRideTo('Washington DC')">Washington DC</li>
             </ul>
         </div>
+        <script>
+            function submitRideTo(destination) {
+                document.getElementById('ride-to').value = destination;
+                document.getElementById('rideToForm').submit();
+            }
+        </script>
 
         <!-- Ride Date Filter wrapped in a form -->
         <div class="ride-date-filter">
             <h2>Ride Date</h2>
             <!-- Action and method attributes may be adjusted as needed -->
-            <form class="date-inputs" action="#" method="POST">
+            <form class="date-inputs" action="rides.php" method="GET">
                 <label for="from-date">From</label>
                 <input type="date" id="from-date" name="from-date" />
                 <label for="to-date">To</label>
@@ -43,7 +53,7 @@
         <!-- Search Bar wrapped in a form -->
         <div class="search-container">
             <!-- Adjust action and method as needed -->
-            <form action="#" method="POST">
+            <form action="rides.php" method="GET">
                 <label for="ride-search">Look for a ride</label>
                 <input type="text" id="ride-search" name="ride" placeholder="Search rides..." />
                 <button type="submit" class="search-btn">Search</button>
@@ -142,3 +152,4 @@
             </div>
         </div>
     </div>
+</div>
