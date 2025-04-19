@@ -5,9 +5,20 @@ error_reporting(E_ALL);
 
 include_once 'db_connect.php';
 
+
+
+$fromDate = $_GET['fromDate'] ?? null;
+$toDate = $_GET['toDate'] ?? null;
+
+if (!$fromDate || !$toDate) {
+    echo "<p>Invalid date input. Please use the form to search again.</p>";
+    exit;
+}
+
 $today = date('Y-m-d H:i:s');
 $rides = [];
 $title = "";
+
 
 try {
     if (isset($_GET['from-date'], $_GET['to-date'])) {
