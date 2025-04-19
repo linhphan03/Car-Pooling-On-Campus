@@ -1,3 +1,5 @@
+<!-- Prabesh Bista -->
+
 <!-- Main container split into two side-by-side columns -->
 <div class="main-content">
 
@@ -24,11 +26,11 @@
         <div class="ride-date-filter">
             <h2>Ride Date</h2>
             <!-- Action and method attributes may be adjusted as needed -->
-            <form class="date-inputs" action="#" method="POST">
+            <form class="date-inputs" action="rides.php" method="GET">
                 <label for="from-date">From</label>
-                <input type="date" id="from-date" name="from-date" />
+                <input type="date" id="from-date" name="fromDate" />
                 <label for="to-date">To</label>
-                <input type="date" id="to-date" name="to-date" />
+                <input type="date" id="to-date" name="toDate" />
                 <!-- Submit button styled similarly to "New Ride" -->
                 <input type="submit" value="Search" class="date-search-btn" />
             </form>
@@ -50,62 +52,18 @@
 
         <!-- Ride Tabs and Ride Cards for Next/Scheduled/Past Rides -->
         <div class="ride-tabs-content">
+
+        <!-- have to add the logic to differentiate the tab -->
             <div class="rides-tabs">
-                <button class="tab-button active">Next Rides</button>
-                <button class="tab-button">Scheduled Rides</button>
-                <button class="tab-button">Past Rides</button>
+                <button onclick="" id="btn_upcoming" class="tab-button active">Upcoming Rides</button>
+                <button onclick="" id="btn_past" class="tab-button">Past Rides</button>
             </div>
             <!-- Ride Cards Container for the selected tab (sample content) -->
             <div class="ride-cards-container">
-                <article class="ride-card">
-                    <p class="ride-date">03/17/2025</p>
-                    <h3>CUB to Harrisburg Intl. Airport</h3>
-                    <p>1 Seat Remaining</p>
-                    <a href="#" class="read-more-link">Read More</a>
-                </article>
-                <article class="ride-card">
-                    <p class="ride-date">03/10/2025</p>
-                    <h3>Hillel House to Walmart</h3>
-                    <p>5 Seats Remaining</p>
-                    <a href="#" class="read-more-link">Read More</a>
-                </article>
-                <article class="ride-card">
-                    <p class="ride-date">03/10/2025</p>
-                    <h3>CUB to Target - Chambersburg</h3>
-                    <p>2 Seats Remaining</p>
-                    <a href="#" class="read-more-link">Read More</a>
-                </article>
-                <article class="ride-card">
-                    <p class="ride-date">03/17/2025</p>
-                    <h3>CUB to Harrisburg Intl. Airport</h3>
-                    <p>1 Seat Remaining</p>
-                    <a href="#" class="read-more-link">Read More</a>
-                </article>
-                <article class="ride-card">
-                    <p class="ride-date">03/17/2025</p>
-                    <h3>CUB to Harrisburg Intl. Airport</h3>
-                    <p>1 Seat Remaining</p>
-                    <a href="#" class="read-more-link">Read More</a>
-                </article>
-                <article class="ride-card">
-                    <p class="ride-date">03/17/2025</p>
-                    <h3>CUB to Harrisburg Intl. Airport</h3>
-                    <p>1 Seat Remaining</p>
-                    <a href="#" class="read-more-link">Read More</a>
-                </article>
-                <article class="ride-card">
-                    <p class="ride-date">03/17/2025</p>
-                    <h3>CUB to Harrisburg Intl. Airport</h3>
-                    <p>1 Seat Remaining</p>
-                    <a href="#" class="read-more-link">Read More</a>
-                </article>
-                <article class="ride-card">
-                    <p class="ride-date">03/17/2025</p>
-                    <h3>CUB to Harrisburg Intl. Airport</h3>
-                    <p>1 Seat Remaining</p>
-                    <a href="#" class="read-more-link">Read More</a>
-                </article>
+            <?php
 
+            include("search.php");
+            ?>
             </div>
         </div>
 
@@ -140,3 +98,5 @@
             </div>
         </div>
     </div>
+
+    <!-- Prabesh Bista -->

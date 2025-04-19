@@ -5,6 +5,7 @@ error_reporting(E_ALL);
 
 include_once 'db_connect.php';
 
+
 $fromDate = $_GET['fromDate'] ?? null;
 $toDate = $_GET['toDate'] ?? null;
 

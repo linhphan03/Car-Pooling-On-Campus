@@ -1,4 +1,4 @@
-/* styles.css */
+/*Prabesh Bista: styles.css */
 
 /* Basic reset */
 * {
@@ -18,7 +18,7 @@
 
 /* LEFT SIDE STYLES */
 .left-side {
-  flex: 0.5; /* takes half the available width */
+  flex: 0.3; /* takes half the available width */
   border-right: 1px solid #ddd; /* optional divider */
   padding-right: 1rem;
 }
@@ -183,7 +183,7 @@
 /* Ride Cards Container (shared by tabs and suggested rides) */
 .ride-cards-container {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(100px, 0.2fr));
   gap: 1.5rem;
   margin-bottom: 2rem;
 }
