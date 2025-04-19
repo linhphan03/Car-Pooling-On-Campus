@@ -53,17 +53,17 @@
         <!-- Ride Tabs and Ride Cards for Next/Scheduled/Past Rides -->
         <div class="ride-tabs-content">
 
-        <!-- have to add the logic to differentiate the tab -->
-            <div class="rides-tabs">
-                <button onclick="" id="btn_upcoming" class="tab-button active">Upcoming Rides</button>
-                <button onclick="" id="btn_past" class="tab-button">Past Rides</button>
-            </div>
+            <!-- have to add the logic to differentiate the tab -->
+            <form action="" method="get" class="rides-tabs">
+                <button type="submit" name="rides" value="upcomingrides" class="tab-button">Upcoming Rides</button>
+                <button type="submit" name="rides" value="pastrides" class="tab-button">Past Rides</button>
+            </form>
             <!-- Ride Cards Container for the selected tab (sample content) -->
             <div class="ride-cards-container">
-            <?php
+                <?php
 
-            include("search.php");
-            ?>
+                include("search.php");
+                ?>
             </div>
         </div>
 
@@ -95,6 +95,16 @@
                     <p>2 Seats Remaining</p>
                     <a href="#" class="read-more-link">Read More</a>
                 </article>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal -->
+    <div id="ride-modal" class="modal hidden">
+        <div class="modal-content">
+            <span class="close-btn">&times;</span>
+            <div id="modal-body">
+                <!-- Ride details will be loaded here -->
             </div>
         </div>
     </div>
