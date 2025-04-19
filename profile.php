@@ -1,27 +1,26 @@
-<!-- SPENCER HAGAN
-Profile Page to display the information of a given user, such as their cars,
-the last 3 rides they were in, the next 3 rides they're in, and their rating.
-
--->
-
-<!DOCTYPE html>
-<html>
 <head>
-<title>User Profile</title>
-<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gettysburg CarPool</title>
+
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css" integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous" />
+    <link rel="stylesheet" href="profile.css" />
 </head>
 <body>
-
-<script src="scripts.js"></script>
- 
-    <!-- Query for user info -->
 <?php
-	include_once("db_connect.php");
+//SPENCER HAGAN
+//	Profile Page to display the information of a given user, such as their cars,
+//	the last 3 rides they were in, the next 3 rides they're in, and their rating.
 	
-	$uid = $_SESSION['uid'];
+function genUserProfile($db, $user) {
+	$uid = $user;
     
     	//User Info
     	$query = "SELECT * FROM User WHERE uid=$uid";
+    	
+    	//User Payment Info
+    	$payQuery = "SELECT * FROM PaymentInfo WHERE uid=$uid ORDER BY payment_type";
+    	$payRes = $db->query($payQuery);
     	
     	//User's rating
     	$rateQuery = "SELECT ROUND(AVG(rating), 2) AS Urating FROM Rates WHERE reviewed_id=$uid GROUP BY reviewed_id";
@@ -70,11 +69,16 @@ the last 3 rides they were in, the next 3 rides they're in, and their rating.
 ?>
     
 <!-- Display Section -->
-<div class='container' style='margin-top:30px'>
+<div class='profile_form' style='margin-top:30px'>
 	<div class='row'>
 		<div class="col-sm-4">
-			<img src="profile.jpg" alt="Profile Picture" class="img-rounded" width="200" height="200">
+			<img src="default_profile.png" alt="Profile Picture" class="img-rounded" width="200" height="200">
 			<br>
+			<!-- User info will be displayed here -->
+			<h2><?php print $name; ?></h2>
+			<h5>Account created on: <?php print $created_at; ?></h5>
+			<p>Phone number: <?php print $pnum; ?></p>
+			<p>Email: <?php print $email; ?></p>
 			<br>
 			<h3>Rating:</h3>
 			<?php
@@ -89,11 +93,24 @@ the last 3 rides they were in, the next 3 rides they're in, and their rating.
 			<hr class='d-sm-none'>
 		</div>
 		<div class='col-sm-4'>
-			<!-- User info will be displayed here -->
-			<h2><?php print $name; ?></h2>
-			<h5>Account created on: <?php print $created_at; ?></h5>
-			<p>Phone number: <?php print $pnum; ?></p>
-			<p>Email: <?php print $email; ?></p>
+			<!-- Payment Info -->
+			<h3>Payment Info:</h3>
+			<?php
+			if ($payRes->rowCount() > 0) {
+				while ($rate = $payRes->fetch()) {
+					$type = $rate['payment_type'];
+					$username = $rate['payment_username'];
+					if($type == "Cash") {
+						print "<p>$type</p>";
+					}
+					else {
+						print "<p>$type: $username</p>";
+					}
+				}
+			} else {
+				print "<p>No payment info found.</p>";
+			}
+			?>
 		</div>
 		<div class='col-sm-4'>
 			<!-- Display the last three most recent reviews of the user-->
@@ -115,7 +132,7 @@ the last 3 rides they were in, the next 3 rides they're in, and their rating.
 	<br>
 	<div class='row'>
 		<div class='col-sm-4'>
-			<button type="button" class="btn btn-info" data-toggle="collapse" data-target="#cars">Their's car(s)</button>
+			<button type="button" class="btn info-btn" data-toggle="collapse" data-target="#cars">Their's car(s)</button>
 			<ul id="cars" class="collapse list-group">
 			<?php
 			if ($carsRes->rowCount() > 0) {
@@ -137,7 +154,7 @@ the last 3 rides they were in, the next 3 rides they're in, and their rating.
 		</div>
 		<div class='col-sm-4'>
 			<!-- Display the last three most recent rides user was in, passenger or driver-->
-			<button type="button" class="btn btn-info" data-toggle="collapse" data-target="#lastRides">Recent Rides</button>
+			<button type="button" class="btn info-btn" data-toggle="collapse" data-target="#lastRides">Recent Rides</button>
 			<ul id="lastRides" class="collapse list-group">
 			<?php
 			if ($lastRidesRes->rowCount() > 0) {
@@ -152,7 +169,7 @@ the last 3 rides they were in, the next 3 rides they're in, and their rating.
 		</div>
 		<div class='col-sm-4'>
 			<!-- Display the next three rides where the user is the driver, if any-->
-			<button type="button" class="btn btn-info" data-toggle="collapse" data-target="#nextRides">Upcoming Rides</button>
+			<button type="button" class="btn info-btn" data-toggle="collapse" data-target="#nextRides">Upcoming Rides</button>
 			<ul id="nextRides" class="collapse list-group">
 			<?php
 			if ($nextRidesRes->rowCount() > 0) {
@@ -173,7 +190,6 @@ the last 3 rides they were in, the next 3 rides they're in, and their rating.
 	else {
 		print "<P>Failed to load user profile! Please Reload!</P>";
 	}
+}
 ?>
-	
 </body>
-</html>

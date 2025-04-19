@@ -19,7 +19,7 @@
 			<!-- SPENCER: Checking Session for a signed in user, displays differently based on this -->
 			<?php if (isset($_SESSION['uid'])) { ?>
 			<li class="nav-item">
-				<a class="nav-link" href="index.php?menu=profile">Profile</a>
+				<a class="nav-link active" href="index.php?menu=profile">Profile</a>
 			</li>
 			<?php 
 			}?>
