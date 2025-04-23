@@ -9,7 +9,7 @@
         <!-- New Ride Button (unchanged) -->
         <div class="new-ride">
             <a href="index.php?menu=fmRide">
-            	<button class="new-ride-btn">New Ride +</button>
+                <button class="new-ride-btn">New Ride +</button>
             </a>
         </div>
 
@@ -83,42 +83,56 @@
         <div class="suggested-rides">
             <h2>Suggested Upcoming Rides!</h2>
             <div class="ride-cards-container">
-                <article class="ride-card">
-                    <p class="ride-date">03/16/2025</p>
-                    <h3>CUB to Target - Hanover</h3>
-                    <p>3 Seats Remaining</p>
-                    <a href="#" class="read-more-link">Read More</a>
-                </article>
-                <article class="ride-card">
-                    <p class="ride-date">03/17/2025</p>
-                    <h3>CUB to Harrisburg Intl. Airport</h3>
-                    <p>1 Seat Remaining</p>
-                    <a href="#" class="read-more-link">Read More</a>
-                </article>
-                <article class="ride-card">
-                    <p class="ride-date">03/10/2025</p>
-                    <h3>Hillel House to Walmart</h3>
-                    <p>5 Seats Remaining</p>
-                    <a href="#" class="read-more-link">Read More</a>
-                </article>
-                <article class="ride-card">
-                    <p class="ride-date">03/10/2025</p>
-                    <h3>CUB to Target - Chambersburg</h3>
-                    <p>2 Seats Remaining</p>
-                    <a href="#" class="read-more-link">Read More</a>
-                </article>
+                <?php
+                //This will get me the uid
+                $uid = $_SESSION["uid"];
+                include("db_connect.php");
+                //fetching all the rides that are not created by the current user
+                //also checks whether the current user has already enrolled in the ride
+                $possibleRidesQuery = "SELECT * FROM Ride WHERE uid<>$uid AND dateTime>=NOW() AND $uid NOT IN (SELECT passenger_ID FROM Requests WHERE Requests.ride_ID = Ride.ride_id) ORDER BY dateTime ASC LIMIT 5";
+                try {
+                    $result = $db->query($possibleRidesQuery);
+
+
+                    while ($row = $result->fetch()) {
+                        $ride_id = $row["ride_ID"];
+                        $driverQuery = "SELECT name FROM User JOIN Ride ON Ride.uid = User.uid AND Ride .ride_ID = $ride_id";
+                        $resDriver = $db->query($driverQuery);
+                        $driverData = $resDriver->fetch();
+
+                       
+
+
+                        ?>
+
+                        <article class="ride-card">
+                            <div class="ride-header">
+                                <p class="ride-date"><?= $row["dateTime"] ?></p>
+                                <h3 class="ride-destination">From Gettysburg College to
+                                    <?= htmlspecialchars($row["destination"]) ?></h3>
+                                    <p class="ride-driver"><strong>Posted By:</strong> <?=$driverData["name"]?></p>
+                            </div>
+                            <div class="ride-footer">
+                                <p><?= $row["available_seats"] ?> seats remaining</p>
+                                <a href="index.php?menu=searchdetail&tab=<?= $search_tab ?>&ride_id=<?= $row["ride_ID"] ?>"
+                                    class="read-more-link">
+                                    View Details →
+                                </a>
+                            </div>
+                        </article>
+                        <?php
+                    }
+
+
+
+                } catch (Exception $ex) {
+                    print "Something went wrong!";
+                }
+
+
+                ?>
             </div>
         </div>
     </div>
 
-
-    <!-- Modal -->
-    <div id="ride-modal" class="modal hidden">
-        <div class="modal-content">
-            <span class="close-btn">&times;</span>
-            <div id="modal-body">
-                <!-- Ride details will be loaded here -->
-            </div>
-        </div>
-    </div>
-
+</div>

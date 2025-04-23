@@ -1,5 +1,6 @@
 <!-- Prabesh Bista -->
 <?php
+session_start();
 include("db_connect.php");
 
 if (!isset($_SESSION["uid"])) {
@@ -11,15 +12,15 @@ if (!isset($_SESSION["uid"])) {
     $search_tab = $_GET['rides'] ?? 'upcomingrides';
     //by default this will fetch any upcoming rides
     $query = "SELECT * FROM Ride  WHERE (Ride.uid=$uid) AND Ride.dateTime >= NOW()  ORDER BY dateTime ASC";
+
     if ($search_tab == 'upcomingrides') {
-        //Upcoming Rides
-        $query = "SELECT * FROM Ride  WHERE (Ride.uid=$uid) AND Ride.dateTime >= NOW()  ORDER BY dateTime ASC";
+        $query = "SELECT * FROM Ride WHERE (Ride.uid=$uid) AND Ride.dateTime >= NOW() ORDER BY dateTime ASC";
     } else {
-        //Past rides
         $query = "SELECT * 
-    FROM Ride JOIN Requests ON Ride.ride_ID=Requests.ride_ID 
-    WHERE Ride.uid=$uid OR Requests.passenger_ID=$uid
-    ORDER BY dateTime DESC";
+                  FROM Ride 
+                  JOIN Requests ON Ride.ride_ID=Requests.ride_ID 
+                  WHERE Ride.uid=$uid OR Requests.passenger_ID=$uid 
+                  ORDER BY dateTime DESC";
     }
 
 
@@ -29,14 +30,20 @@ if (!isset($_SESSION["uid"])) {
 
 
 
+
     try {
+
+
         $res = $db->query($query);
+
         $pastRidesData = $res->fetchAll();
 
+
+
         if (count($pastRidesData) == 0) {
-            if($search_tab == 'upcomingrides'){
+            if ($search_tab == 'upcomingrides') {
                 print ("There are no upcoming rides!");
-            }else{
+            } else {
                 print ("There are no past rides!");
             }
 
@@ -48,10 +55,17 @@ if (!isset($_SESSION["uid"])) {
                 ?>
 
                 <article class="ride-card">
-                    <p class="ride-date"><?= $row["dateTime"] ?></p>
-                    <h3>Gettysburg College to <?= $row["destination"] ?></h3>
-                    <p><?= $row["available_seats"] ?> seats remaining </p>
-                    <a href="#" class="read-more-link" data-ride-id="<?= $row['ride_ID'] ?>">Read More</a>
+                    <div class="ride-header">
+                        <p class="ride-date"><?= $row["dateTime"] ?></p>
+                        <h3 class="ride-destination">From Gettysburg College to <?= htmlspecialchars($row["destination"]) ?></h3>
+                    </div>
+                    <div class="ride-footer">
+                        <p><?= $row["available_seats"] ?> seats remaining</p>
+                        <a href="index.php?menu=searchdetail&tab=<?= $search_tab ?>&ride_id=<?= $row["ride_ID"] ?>"
+                            class="read-more-link">
+                            View Details →
+                        </a>
+                    </div>
                 </article>
                 <?php
             }

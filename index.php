@@ -47,6 +47,9 @@
             case "Dashboard":
                 include("dashboard.php");
                 break;
+            case "searchdetail":
+                include("searchDetail.php");
+                break;
             case "about":
                 include("about.php");
                 break;
@@ -61,6 +64,7 @@
             case "procNewRide":
             	  processRide($db, $_SESSION['uid'], $_POST);
             	  break;
+            
         }
     } else {
         if (isset($_SESSION['uid'])) {
