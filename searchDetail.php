@@ -17,6 +17,67 @@ if ($tab == "suggest") {
     $action_id = 3;
 }
 
+try {
+    //query to get the data of the driver from the database
+    $driverQuery = "SELECT * FROM User JOIN Ride ON Ride.uid = User.uid AND Ride.ride_ID = $ride_id;";
+    $resDriver = $db->query($driverQuery);
+    $driverData = $resDriver->fetch();
+    $driverID = $driverData["uid"];
+    $driverName = $driverData["name"];
+    $destination = $driverData["destination"];
+    $availableSeats = $driverData["available_seats"];
+
+    //format the raw date obtained from the db
+    $dateTimeFromDB = $driverData['dateTime']; 
+    $date = new DateTime($dateTimeFromDB);
+    $dateCal = $date->format('l, F j');
+    $dateTime = $date->format('g:i A');
+
+
+    //driver Created Date
+    $dateTimeDriver = $driverData["created_at"];
+    $created_date = new DateTime($dateTimeDriver);
+    $dateCalDriver = $created_date->format('F Y');
+
+
+
+
+
+    //query to get the average rating of the driver
+    $ratingQuery = "SELECT R1.rating, R1.review, U.name FROM Rates AS R1 JOIN User AS U ON R1.reviewer_id = U.uid WHERE R1.reviewed_id = $driverID ORDER BY dateTime ASC LIMIT 3";
+    $ratingData = $db->query($ratingQuery);
+
+    //query to get the average rating of the driver
+    $avgRatingQuery = "SELECT ROUND(AVG(rating), 2) AS drating FROM Rates WHERE reviewed_id=$driverID GROUP BY reviewed_id";
+    $avgRatingResult = $db->query($avgRatingQuery);
+    $averageRating = $avgRatingResult->fetch()["drating"];
+
+    //query to find the number of trips completed
+    $nRidesQuer = "SELECT COUNT(R1.ride_ID) AS tRides FROM Ride AS R1 WHERE uid=$driverID";
+    $nRidesResult = $db->query($nRidesQuer);
+    $nRides = $nRidesResult->fetch()["tRides"];
+
+    //query to find the number of passengers driven
+    $nPassengerQuer = "SELECT COUNT(R2.passenger_ID) as tPassenger FROM Ride AS R1 NATURAL JOIN Requests AS R2 WHERE uid = $driverID";
+    $nPassengerResult = $db->query($nPassengerQuer);
+
+    $nPassenger = $nPassengerResult->fetch()["tPassenger"];
+
+    //query to find the car of the driver
+    //TODO
+    // $carQuery = "SELECT "
+
+
+
+
+
+
+
+} catch (Exception $ex) {
+    print "OOPs! There was some error :)";
+}
+
+
 ?>
 
 <div class="ride-detail-wrapper">
@@ -26,17 +87,17 @@ if ($tab == "suggest") {
         <div class="ride-profile">
             <img class="driver-avatar" src="driver_image.png" alt="Driver Profile">
             <div class="driver-info">
-                <h3>Millor</h3>
-                <p class="rating">⭐ 5.0 · 115 trips driven</p>
+                <h3><?= $driverName ?></h3>
+                <p class="rating">⭐ <?= $averageRating ?> · <?= $nRides ?> trips driven</p>
             </div>
         </div>
 
         <div class="ride-info">
-            <h2>Gettysburg to Washington DC</h2>
-            <p class="ride-time">Leaving Saturday, April 26 at 8:45 AM</p>
+            <h2>Gettysburg to <?=$destination?></h2>
+            <p class="ride-time">Leaving <?=$dateCal?> at <?=$dateTime?></p>
             <p><strong>Pickup:</strong> Gettysburg College</p>
-            <p><strong>Dropoff:</strong> Washington DC</p>
-            <p class="seats-left">4 seats left · <span class="price">$10 per seat</span></p>
+            <p><strong>Dropoff:</strong> <?=$destination?></p>
+            <p class="seats-left"><?=$availableSeats?> left · <span class="price">Price Negotiable</span></p>
         </div>
 
         <div class="car-info">
@@ -76,9 +137,9 @@ if ($tab == "suggest") {
         <div class="about-grid">
             <div class="driver-about">
                 <img class="driver-avatar-large" src="driver_image.png" alt="Driver Profile">
-                <p><strong>Millor</strong> · ⭐ 5.0 (115 driven)</p>
-                <p>Member since July 2023</p>
-                <p>🚗 Passengers driven: <strong>115</strong></p>
+                <p><strong>Millor</strong> · ⭐ <?= $averageRating ?> (<?= $nRides ?> driven)</p>
+                <p>Member since <?=$dateCalDriver?></p>
+                <p>🚗 Passengers driven: <strong><?= $nPassenger ?></strong></p>
                 <div class="verifications">
                     <p>✅ Driver's license verified</p>
                     <p>📨 Email address: Verified</p>
@@ -88,18 +149,29 @@ if ($tab == "suggest") {
 
             <div class="recent-reviews">
                 <h4>Recent reviews</h4>
-                <div class="review">
-                    <p><strong>Ruchi:</strong> She is very nice and cooperative.</p>
-                </div>
-                <div class="review">
-                    <p><strong>Kai:</strong> Millor was so nice! I loved the travel. It didn’t feel like a 4-hour
-                        drive.
-                    </p>
-                </div>
-                <div class="review">
-                    <p><strong>Md Baysur:</strong> It was a great experience.</p>
-                </div>
-                <a href="#" class="view-all-reviews">Read all reviews →</a>
+                <?php
+                $no_data = 0;
+                while ($row = $ratingData->fetch()) {
+                    $no_data = 1;
+
+                    ?>
+                    <div class="review">
+                        <p><strong><?= $row["name"] ?>:</strong> <?= $row["review"] ?></p>
+                        <p>⭐ <?= $row["rating"] ?>/5</p>
+                    </div>
+                    <?php
+                }
+
+                ?>
+                <?php
+                if($no_data!=0){
+                    ?>
+                    <a href="#" class="view-all-reviews">Read all reviews →</a>
+                    <?php
+                }else{
+                    print "<h6>Looks like everyone enjoyed the ride so much they forgot to review it. 🚗💨🫠</h6>";
+                }
+                ?>
             </div>
         </div>
 
