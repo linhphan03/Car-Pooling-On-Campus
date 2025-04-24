@@ -10,18 +10,15 @@ if (!isset($_SESSION["uid"])) {
 } else {
     $uid = $_SESSION["uid"];
     $search_tab = $_GET['rides'] ?? 'upcomingrides';
-    //by default this will fetch any upcoming rides
-    $query = "SELECT * FROM Ride  WHERE (Ride.uid=$uid) AND Ride.dateTime >= NOW()  ORDER BY dateTime ASC";
 
-    if ($search_tab == 'upcomingrides') {
-        $query = "SELECT * FROM Ride WHERE (Ride.uid=$uid) AND Ride.dateTime >= NOW() ORDER BY dateTime ASC";
+
+    if ($search_tab == 'pastrides') {
+        $query = "SELECT * FROM Ride WHERE ((Ride.uid=$uid) OR Ride.ride_id IN(SELECT ride_ID FROM Requests WHERE passenger_ID = $uid)) AND Ride.dateTime <NOW()  ORDER BY dateTime DESC";
     } else {
-        $query = "SELECT * 
-                  FROM Ride 
-                  JOIN Requests ON Ride.ride_ID=Requests.ride_ID 
-                  WHERE Ride.uid=$uid OR Requests.passenger_ID=$uid 
-                  ORDER BY dateTime DESC";
+        $query = "SELECT * FROM Ride WHERE ((Ride.uid=$uid) OR Ride.ride_id IN(SELECT ride_ID FROM Requests WHERE passenger_ID = $uid)) AND Ride.dateTime >= NOW()  ORDER BY dateTime ASC";
     }
+
+   
 
 
 

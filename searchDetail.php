@@ -63,15 +63,6 @@ try {
 
     $nPassenger = $nPassengerResult->fetch()["tPassenger"];
 
-    //query to find the car of the driver
-    //TODO
-    // $carQuery = "SELECT "
-
-
-
-
-
-
 
 } catch (Exception $ex) {
     print "OOPs! There was some error :)";
@@ -79,9 +70,6 @@ try {
 
 //logic to insert the data into the Request table
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['myButton'])) {
-    global $ride_id;
-    global $db;
-
     //query to insert in the reqest table
     $user_id = $_SESSION['uid'];
 
@@ -96,20 +84,54 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['myButton'])) {
     if ($exists) {
         print "Ride Already booked";
     } else {
-        print "hello";
-        $insertStmt = $db->prepare("INSERT INTO Requests (ride_ID, passenger_ID) VALUES (:ride_id, :user_id)");
-        $insertStmt->execute([
-            ':ride_id' => $ride_id,
-            ':user_id' => $user_id
-        ]);
-        // Redirect to index.php after processing
-        header("Location: index.php?menu=success");
-        exit();
+        try {
 
+            $db->beginTransaction();
+            $insertStmt = $db->prepare("INSERT INTO Requests (ride_ID, passenger_ID) VALUES (:ride_id, :user_id)");
+            $insertStmt->execute([
+                ':ride_id' => $ride_id,
+                ':user_id' => $user_id
+            ]);
+
+            $updateStmt = $db->prepare("UPDATE Ride SET available_seats = available_seats - 1 WHERE ride_ID = :ride_id AND available_seats > 0");
+            $updateStmt->execute([':ride_id' => $ride_id]);
+
+            // 3. Commit the transaction
+            $db->commit();
+            // Redirect to index.php after processing
+            header("Location: index.php?menu=success");
+            exit();
+
+        } catch (Exception $ex) {
+            print $ex;
+        }
     }
 
 
 
+}
+
+
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['cancelButton'])) {
+    try {
+        //this for the ride for which the current user is not the driver of that ride   
+        $user_id = $_SESSION['uid'];
+        $db->beginTransaction();
+        $deleteStmt = $db->prepare("DELETE FROM Requests WHERE ride_ID = :ride_id AND passenger_ID=:user_id");
+        $deleteStmt->execute([
+            ':ride_id' => $ride_id,
+            ':user_id' => $user_id
+        ]);
+        //update the ride 
+        $updateStmt = $db->prepare("UPDATE Ride SET available_seats = available_seats + 1 WHERE ride_ID = :ride_id");
+        $updateStmt->execute([':ride_id' => $ride_id]);
+
+        $db->commit();
+        header("Location: index.php?menu=success");
+        exit();
+    } catch (Exception $ex) {
+        print $ex;
+    }
 }
 
 
@@ -174,9 +196,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['myButton'])) {
         } else if ($action_id == 2) {
 
             ?>
-                <div class="book-btn-container">
-                    <button class="book-btn">Cancel Ride</button>
-                </div>
+                <form method="POST">
+                    <div class="book-btn-container">
+                        <button name="cancelButton" type="submit" class="book-btn" style="background-color: red;">Cancel
+                            Ride</button>
+                    </div>
+                </form>
 
 
             <?php
