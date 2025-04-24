@@ -28,7 +28,7 @@ try {
     $availableSeats = $driverData["available_seats"];
 
     //format the raw date obtained from the db
-    $dateTimeFromDB = $driverData['dateTime']; 
+    $dateTimeFromDB = $driverData['dateTime'];
     $date = new DateTime($dateTimeFromDB);
     $dateCal = $date->format('l, F j');
     $dateTime = $date->format('g:i A');
@@ -77,6 +77,41 @@ try {
     print "OOPs! There was some error :)";
 }
 
+//logic to insert the data into the Request table
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['myButton'])) {
+    global $ride_id;
+    global $db;
+
+    //query to insert in the reqest table
+    $user_id = $_SESSION['uid'];
+
+    $stmt = $db->prepare("SELECT 1 FROM Requests WHERE ride_ID = :ride_id AND passenger_ID = :user_id LIMIT 1");
+    $stmt->execute([
+        ':ride_id' => $ride_id,
+        ':user_id' => $user_id
+    ]);
+
+    $exists = $stmt->fetch();
+
+    if ($exists) {
+        print "Ride Already booked";
+    } else {
+        print "hello";
+        $insertStmt = $db->prepare("INSERT INTO Requests (ride_ID, passenger_ID) VALUES (:ride_id, :user_id)");
+        $insertStmt->execute([
+            ':ride_id' => $ride_id,
+            ':user_id' => $user_id
+        ]);
+        // Redirect to index.php after processing
+        header("Location: index.php?menu=success");
+        exit();
+
+    }
+
+
+
+}
+
 
 ?>
 
@@ -93,11 +128,11 @@ try {
         </div>
 
         <div class="ride-info">
-            <h2>Gettysburg to <?=$destination?></h2>
-            <p class="ride-time">Leaving <?=$dateCal?> at <?=$dateTime?></p>
+            <h2>Gettysburg to <?= $destination ?></h2>
+            <p class="ride-time">Leaving <?= $dateCal ?> at <?= $dateTime ?></p>
             <p><strong>Pickup:</strong> Gettysburg College</p>
-            <p><strong>Dropoff:</strong> <?=$destination?></p>
-            <p class="seats-left"><?=$availableSeats?> left · <span class="price">Price Negotiable</span></p>
+            <p><strong>Dropoff:</strong> <?= $destination ?></p>
+            <p class="seats-left"><?= $availableSeats ?> left · <span class="price">Price Negotiable</span></p>
         </div>
 
         <div class="car-info">
@@ -112,11 +147,30 @@ try {
 
         <?php
         if ($action_id == 1) {
-            ?>
-            <div class="book-btn-container">
-                <button class="book-btn">Book now</button>
-            </div>
-            <?php
+            $user_id = $_SESSION['uid'];
+
+            $stmt = $db->prepare("SELECT 1 FROM Requests WHERE ride_ID = :ride_id AND passenger_ID = :user_id LIMIT 1");
+            $stmt->execute([
+                ':ride_id' => $ride_id,
+                ':user_id' => $user_id
+            ]);
+
+            $exists = $stmt->fetch();
+            if ($exists) {
+                ?>
+                <div class="book-btn-container">
+                    <button class="book-btn" style="background-color: red;">Cancel Ride</button>
+                </div>
+                <?php
+            } else {
+                ?>
+                <form method="POST">
+                    <div class="book-btn-container">
+                        <button type="submit" name="myButton" class="book-btn">Book now</button>
+                    </div>
+                </form>
+                <?php
+            }
         } else if ($action_id == 2) {
 
             ?>
@@ -138,7 +192,7 @@ try {
             <div class="driver-about">
                 <img class="driver-avatar-large" src="driver_image.png" alt="Driver Profile">
                 <p><strong>Millor</strong> · ⭐ <?= $averageRating ?> (<?= $nRides ?> driven)</p>
-                <p>Member since <?=$dateCalDriver?></p>
+                <p>Member since <?= $dateCalDriver ?></p>
                 <p>🚗 Passengers driven: <strong><?= $nPassenger ?></strong></p>
                 <div class="verifications">
                     <p>✅ Driver's license verified</p>
@@ -164,11 +218,11 @@ try {
 
                 ?>
                 <?php
-                if($no_data!=0){
+                if ($no_data != 0) {
                     ?>
                     <a href="#" class="view-all-reviews">Read all reviews →</a>
                     <?php
-                }else{
+                } else {
                     print "<h6>Looks like everyone enjoyed the ride so much they forgot to review it. 🚗💨🫠</h6>";
                 }
                 ?>

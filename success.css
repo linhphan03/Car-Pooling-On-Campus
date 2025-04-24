@@ -1,0 +1,32 @@
+.success-message {
+    background-color: #d4edda;
+    color: #155724;
+    padding: 1rem 2rem;
+    border-radius: 8px;
+    margin: 2rem auto;
+    max-width: 500px;
+    text-align: center;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    animation: fadeSlideUp 0.8s ease-out;
+  }
+  
+  @keyframes fadeSlideUp {
+    from {
+      opacity: 0;
+      transform: translateY(30px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+  
+  .success-message h2 {
+    margin-bottom: 0.5rem;
+    font-size: 1.5rem;
+  }
+  
+  .success-message p {
+    font-size: 1rem;
+    color: #1c452a;
+  }
