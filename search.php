@@ -52,16 +52,26 @@ if (!isset($_SESSION["uid"])) {
 
             foreach ($pastRidesData as $row) {
 
+                $ride_id = $row["ride_ID"];
+                $driverQuery = "SELECT name FROM User JOIN Ride ON Ride.uid = User.uid AND Ride .ride_ID = $ride_id";
+                $resDriver = $db->query($driverQuery);
+                $driverData = $resDriver->fetch();
+
+               
+
+
                 ?>
 
                 <article class="ride-card">
                     <div class="ride-header">
                         <p class="ride-date"><?= $row["dateTime"] ?></p>
-                        <h3 class="ride-destination">From Gettysburg College to <?= htmlspecialchars($row["destination"]) ?></h3>
+                        <h3 class="ride-destination">From Gettysburg College to
+                            <?= htmlspecialchars($row["destination"]) ?></h3>
+                            <p class="ride-driver"><strong>Posted By:</strong> <?=$driverData["name"]?></p>
                     </div>
                     <div class="ride-footer">
                         <p><?= $row["available_seats"] ?> seats remaining</p>
-                        <a href="index.php?menu=searchdetail&tab=<?= $search_tab ?>&ride_id=<?= $row["ride_ID"] ?>"
+                        <a href="index.php?menu=searchdetail&tab=<?=$search_tab?>&ride_id=<?= $row["ride_ID"] ?>"
                             class="read-more-link">
                             View Details →
                         </a>

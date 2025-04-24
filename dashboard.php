@@ -114,7 +114,7 @@
                             </div>
                             <div class="ride-footer">
                                 <p><?= $row["available_seats"] ?> seats remaining</p>
-                                <a href="index.php?menu=searchdetail&tab=<?= $search_tab ?>&ride_id=<?= $row["ride_ID"] ?>"
+                                <a href="index.php?menu=searchdetail&tab=suggest&ride_id=<?= $row["ride_ID"] ?>"
                                     class="read-more-link">
                                     View Details →
                                 </a>

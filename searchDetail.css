@@ -1,0 +1,173 @@
+.ride-detail-wrapper {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 2rem;
+    max-width: 1100px;
+    margin: 2rem auto;
+    padding: 2rem;
+    background: #fff;
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+    font-family: 'Segoe UI', sans-serif;
+    color: #333;
+  }
+
+  .ride-detail-left {
+    flex: 2;
+    min-width: 300px;
+  }
+  
+  .ride-detail-right {
+    flex: 1.2;
+    min-width: 260px;
+    border-left: 1px solid #eee;
+    padding-left: 1.5rem;
+  }
+  
+  /* Optional: Make it stack on mobile */
+  @media (max-width: 768px) {
+    .ride-detail-wrapper {
+      flex-direction: column;
+    }
+  
+    .ride-detail-right {
+      border-left: none;
+      padding-left: 0;
+      border-top: 1px solid #eee;
+      padding-top: 1.5rem;
+    }
+  }
+  
+
+  .ride-profile {
+    display: flex;
+    align-items: center;
+    margin-bottom: 1.5rem;
+  }
+  
+  .driver-avatar {
+    border-radius: 50%;
+    width: 80px;
+    height: 80px;
+    object-fit: cover;
+    margin-right: 1rem;
+  }
+  
+  .driver-info h3 {
+    margin: 0;
+    font-size: 1.2rem;
+  }
+  
+  .rating {
+    font-size: 0.95rem;
+    color: #666;
+  }
+  
+  .ride-info h2 {
+    margin-bottom: 0.5rem;
+    font-size: 1.5rem;
+  }
+  
+  .ride-time {
+    color: #666;
+    margin-bottom: 1rem;
+  }
+  
+  .seats-left {
+    font-weight: 600;
+    margin-top: 1rem;
+  }
+  
+  .price {
+    color: #007bff;
+  }
+  
+  .car-info {
+    display: flex;
+    align-items: center;
+    margin-top: 2rem;
+  }
+  
+  .car-img {
+    width: 120px;
+    height: 70px;
+    object-fit: cover;
+    margin-right: 1rem;
+    border-radius: 8px;
+    border: 1px solid #ccc;
+  }
+  
+  .car-details {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    color: #444;
+  }
+  
+  .book-btn-container {
+    margin-top: 2rem;
+    text-align: center;
+  }
+  
+  .book-btn {
+    padding: 0.8rem 2rem;
+    font-size: 1rem;
+    background-color: #007bff;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+  }
+  
+  .book-btn:hover {
+    background-color: #e55600;
+  }
+  
+  /* Driver About Section */
+  
+  .about-grid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 2rem;
+  }
+  
+  .driver-about, .recent-reviews {
+    flex: 1;
+    min-width: 280px;
+  }
+  
+  .driver-avatar-large {
+    width: 100px;
+    height: 100px;
+    border-radius: 50%;
+    object-fit: cover;
+    margin-bottom: 1rem;
+  }
+  
+  .verifications p {
+    margin: 0.3rem 0;
+    font-size: 0.95rem;
+    color: #444;
+  }
+  
+  .recent-reviews .review {
+    background: #f8f8f8;
+    border-radius: 8px;
+    padding: 0.75rem;
+    margin-bottom: 1rem;
+    font-size: 0.95rem;
+  }
+  
+  .view-all-reviews {
+    display: inline-block;
+    margin-top: 0.5rem;
+    font-weight: 500;
+    color: #007bff;
+    text-decoration: none;
+  }
+  
+  .view-all-reviews:hover {
+    text-decoration: underline;
+  }
+  
