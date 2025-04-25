@@ -13,40 +13,45 @@
             </a>
         </div>
 
-        <!-- Ride To List -->
-        <div class="ride-to-section">
-            <h2>Ride to</h2>
-            <form id="rideToForm" action="rides.php" method="GET">
-                <input type="hidden" id="ride-to" name="ride-to" value="" />
-            </form>
+        <div class="ride-to-date-search">
+            <form id="rideSearchForm" action="rides.php" method="GET">
+                
+                <!-- Ride To Section -->
+                <div class="ride-to-section">
+                    <h2>Ride to</h2>
+                    <input type="hidden" id="ride-to" name="ride-to" value="" />
 
-            <ul class="ride-to-list">
-                <li onclick="submitRideTo('Target')">Target</li>
-                <li onclick="submitRideTo('Walmart')">Walmart</li>
-                <li onclick="submitRideTo('Dulles International Airport')">Dulles International Airport</li>
-                <li onclick="submitRideTo('Washington DC')">Washington DC</li>
-            </ul>
-        </div>
-        <script>
-            function submitRideTo(destination) {
-                document.getElementById('ride-to').value = destination;
-                document.getElementById('rideToForm').submit();
-            }
-        </script>
+                    <ul class="ride-to-list">
+                        <li onclick="selectRideTo('Target')">Target</li>
+                        <li onclick="selectRideTo('Walmart')">Walmart</li>
+                        <li onclick="selectRideTo('Dulles International Airport')">Dulles International Airport</li>
+                        <li onclick="selectRideTo('Washington DC')">Washington DC</li>
+                    </ul>
+                </div>
 
-        <!-- Ride Date Filter wrapped in a form -->
-        <div class="ride-date-filter">
-            <h2>Ride Date</h2>
-            <!-- Action and method attributes may be adjusted as needed -->
-            <form class="date-inputs" action="rides.php" method="GET">
-                <label for="from-date">From</label>
-                <input type="date" id="from-date" name="fromDate" />
-                <label for="to-date">To</label>
-                <input type="date" id="to-date" name="toDate" />
-                <!-- Submit button styled similarly to "New Ride" -->
+                <!-- Ride Date Section -->
+                <div class="ride-date-filter">
+                    <h2>Ride Date</h2>
+                    <label for="from-date">From</label>
+                    <input type="date" id="from-date" name="from-date" required />
+                    <label for="to-date">To</label>
+                    <input type="date" id="to-date" name="to-date" required />
+                </div>
+
                 <input type="submit" value="Search" class="date-search-btn" />
             </form>
         </div>
+
+        <script>
+            function selectRideTo(destination) {
+                document.getElementById('ride-to').value = destination;
+
+                // Highlight selected item (optional)
+                const items = document.querySelectorAll('.ride-to-list li');
+                items.forEach(item => item.classList.remove('selected'));
+                event.target.classList.add('selected');
+            }
+        </script>
     </div>
 
     <!-- RIGHT SIDE: Search Bar, Tabs & Ride Cards, Suggested Rides -->
@@ -57,7 +62,7 @@
             <!-- Adjust action and method as needed -->
             <form action="rides.php" method="GET">
                 <label for="ride-search">Look for a ride</label>
-                <input type="text" id="ride-search" name="ride" placeholder="Search rides..." />
+                <input type="text" id="ride-search" name="ride-to" placeholder="Search rides..." />
                 <button type="submit" class="search-btn">Search</button>
             </form>
         </div>
