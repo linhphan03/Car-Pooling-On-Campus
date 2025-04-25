@@ -28,6 +28,20 @@
 
         // Set the session variable
         $_SESSION['uid'] = $uid;
+        
+        //check if user is admin, set admin in session if they are
+        $query = "SELECT * FROM Admin WHERE admin_ID=$uid";
+        $res = $db->query($query);
+        
+        if($res != FALSE) {
+        	while($row = $res->fetch()) {
+			$admin = $row['admin_ID'];
+		}
+		
+		if($uid = $admin) {
+        		$_SESSION['admin'] = $admin;
+        	}
+        }
 
         // Redirect to the same page, gives navbar time to switch to logged_in version
         header("refresh:1;url=index.php");
@@ -43,6 +57,18 @@
             case "profile":
                 genUserProfile($db, $_SESSION['uid']);
                 break;
+            case "editProfile":
+                genEditUserForm($db, $_SESSION['uid']);
+                break;
+            case "otherProfile":
+                genProfilefromForm($db, $_POST);
+                break;
+            case "procUserEdits":
+                processUserEdits($db, $_POST);
+                break; 
+            case "admin":
+                include("AdminPage.php");
+            	  break;
             case "faq":
                 include("faq.php");
                 break;
@@ -69,7 +95,6 @@
             case "procNewRide":
             	  processRide($db, $_SESSION['uid'], $_POST);
             	  break;
-            
         }
     } else {
         if (isset($_SESSION['uid'])) {

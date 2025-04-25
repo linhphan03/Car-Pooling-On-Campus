@@ -29,6 +29,12 @@
 			<li class="nav-item">
 				<a class="nav-link" href="index.php?menu=about">About Us</a>
 			</li>
+			<?php if (isset($_SESSION['admin'])) { ?>
+			<li class="nav-item">
+				<a class="nav-link active" href="index.php?menu=admin">Admin Page</a>
+			</li>
+			<?php 
+			}?>
 		</ul>
 		<ul class="navbar-nav ml-auto">
 			<!-- SPENCER: Checking Session for a signed in user, displays differently based on this -->

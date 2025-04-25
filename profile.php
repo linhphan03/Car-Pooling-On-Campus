@@ -1,10 +1,5 @@
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Gettysburg CarPool</title>
-
-    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css" integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous" />
-    <link rel="stylesheet" href="profile.css" />
+	<link rel="stylesheet" href="profile.css" />
 </head>
 <body>
 <?php
@@ -27,8 +22,8 @@ function genUserProfile($db, $user) {
     	$rateRes = $db->query($rateQuery);
     	
     	//Reviews of the user
-    	$reviewQuery = "SELECT reviewer_id, rating, review 
-    			  FROM Rates 
+    	$reviewQuery = "SELECT reviewer_id, name, rating, review 
+    			  FROM Rates JOIN User ON reviewer_id=uid
     			  WHERE reviewed_id=$uid 
     			  ORDER BY dateTime 
     			  DESC
@@ -70,10 +65,13 @@ function genUserProfile($db, $user) {
     
 <!-- Display Section -->
 <div class='profile_form' style='margin-top:30px'>
-	<div class='row'>
+	<?php if($uid == $_SESSION['uid']) {
+		print "<a class='submit_btn' href='index.php?menu=editProfile'>Edit Profile</a>";
+	} ?>
+	<div class='row' style='margin:30px'>
 		<div class="col-sm-4">
 			<img src="default_profile.png" alt="Profile Picture" class="img-rounded" width="200" height="200">
-			<br>
+			<br><br>
 			<!-- User info will be displayed here -->
 			<h2><?php print $name; ?></h2>
 			<h5>Account created on: <?php print $created_at; ?></h5>
@@ -97,9 +95,9 @@ function genUserProfile($db, $user) {
 			<h3>Payment Info:</h3>
 			<?php
 			if ($payRes->rowCount() > 0) {
-				while ($rate = $payRes->fetch()) {
-					$type = $rate['payment_type'];
-					$username = $rate['payment_username'];
+				while ($pay = $payRes->fetch()) {
+					$type = $pay['payment_type'];
+					$username = $pay['payment_username'];
 					if($type == "Cash") {
 						print "<p>$type</p>";
 					}
@@ -119,7 +117,7 @@ function genUserProfile($db, $user) {
 			<?php
 			if ($revsRes->rowCount() > 0) {
 				while ($revs = $revsRes->fetch()) {
-					print "<li class='list-group-item'>From " . $revs['reviewer_id'] . ": Rated " . $revs['rating'] . " stars, saying '" . $revs['review'] . "'" . "</li>";
+					print "<li class='list-group-item'>From " . $revs['name'] . ": Rated " . $revs['rating'] . " stars, saying '" . $revs['review'] . "'" . "</li>";
 				}
 			} else {
 				print "<li class='list-group-item'>No reviews found.</li>";
@@ -130,8 +128,9 @@ function genUserProfile($db, $user) {
 	</div>
 	<br>
 	<br>
-	<div class='row'>
+	<div class='row' style="margin-left:15px; margin-right:15px;">
 		<div class='col-sm-4'>
+			<!-- Display the cars of the user-->
 			<button type="button" class="btn info-btn" data-toggle="collapse" data-target="#cars">Their's car(s)</button>
 			<ul id="cars" class="collapse list-group">
 			<?php
@@ -190,6 +189,142 @@ function genUserProfile($db, $user) {
 	else {
 		print "<P>Failed to load user profile! Please Reload!</P>";
 	}
+}
+
+//Page for a signed in user to edit their profile info (user info, payment options, cars, etc.)
+function genEditUserForm($db, $user) {
+	$uid = $user;
+    
+    	//User Info
+    	$query = "SELECT * FROM User WHERE uid=$uid";
+    	
+    	//User Payment Info
+    	$payQuery = "SELECT * FROM PaymentInfo WHERE uid=$uid ORDER BY payment_type";
+    	$payRes = $db->query($payQuery);
+    	
+    	//Payment TypeInfo
+    	$payTypeQuery = "SELECT DISTINCT payment_type FROM PaymentInfo";
+    	$payTypeRes = $db->query($payTypeQuery);
+    	
+    	//Cars the user has
+    	$carsQuery = "SELECT * FROM Car WHERE uid=$uid";
+    	$carsRes = $db->query($carsQuery);
+    	
+    	$res = $db->query($query);
+    	
+    	if($res != FALSE) {
+    		while($row = $res->fetch()) {
+			
+			$uid = $row['uid'];
+			$pnum = $row['pnum'];
+			$email = $row['email'];
+			$name = $row['name'];
+			$created_at = $row['created_at'];
+		}
+?>
+    
+<!-- Display Section -->
+<div class='profile_form' style='margin-top:30px'>
+	<a class='submit_btn' style='margin-bottom:30px' href='index.php?menu=profile'>Go Back</a>
+	<br><br>
+	<div class='row' style='margin-left:30px'>
+	
+	
+		<!-- User Info Editing Section -->
+		<div class='col-sm-4'>
+			<FORM name='editUserInfo' method='POST' action='index.php?menu=procUserEdits'>
+				<INPUT type='hidden' name='editUserFm' value='1' />
+				<h2>User Info</h2>	
+				<label for='name'>Name:</label><br>
+					<?php print "<INPUT type='text' style='width: 200px' name='name' value='$name' /><br>"; ?>				
+				<label for='pnum'>Phone Number:</label><br>
+					<?php print "<INPUT type='text' style='width: 200px' name='pnum' value='$pnum' /><br>"; ?>					
+				<label for='email'>Email:</label><br>
+					<?php print "<INPUT type='email' style='width: 200px' name='email' value='$email' /><br>"; ?>
+				<INPUT type='submit' class="submit_btn" style="width:50%" value="Edit User Info" />
+			</FORM>
+		</div>
+		
+		
+		<!-- User Payment Info Editing Section -->
+		<div class='col-sm-4'>
+			<FORM name='editPayInfo' method='POST' action='index.php?menu=procUserEdits'>
+				<h2>Payment Info</h2>
+				<table class='table'>
+				<?php
+				while ($pay = $payRes->fetch()) {
+					$type = $pay['payment_type'];
+					$username = $pay['payment_username'];
+					if($type == "Cash") {
+						print "<tr><td>$type</td><td><INPUT type='submit' class='button' value='Delete' /></td><tr>";
+					}
+					else {
+						print "<tr><td>$type : $username</td><td><INPUT type='submit' class='button' value='Delete' /></td><tr>";
+					}
+				}
+				?>
+				<!-- Options for what type of payment, followed by the username for it -->
+				<label for='newPay'>Add a new payment:</label><br>
+					<?php print "<tr><td><INPUT type='text' name='payment_type' placeholder='Type' /></td>"; ?>				
+					<?php print "<td><INPUT type='text' name='payment_username' placeholder='Username' /></td></tr>"; ?>
+					<tr><td><INPUT type='submit' class="submit_btn" style="width:75%" value="Add New Payment" /></td></tr>
+				</table>				
+			</FORM>	
+			</div>
+		<!-- User Car Info Editing Section -->
+		<div class='col-sm-4'>
+			<h2>Cars</h2>	
+					
+		</div>
+	</div>
+</div>
+<?php
+	}
+	else {
+		print "<P>Failed to edit user profile! Please Reload!</P>";
+	}
+}
+
+//Process any edits made from the profile edit page. Update in database and then refresh to updated profile.
+function processUserEdits($db, $editData) {
+	print "<P>Process User Info!</P>";
+	if(isset($editData['editUserFm'])) {
+		$name  = $editData['name'];
+		$pnum  = $editData['pnum'];
+		$email = $editData['email'];
+		$uid   = $_SESSION['uid'];
+		
+		$sqlUpdate = "UPDATE User SET name='$name', pnum='$pnum', email='$email' WHERE uid=$uid;
+";
+		//print "<P>$sqlUpdate</P>";
+		$res = $db->query($sqlUpdate);
+		
+		if ($res != FALSE) {
+    			print "<P>User Info updated successfully</P>\n";
+		} else {
+			print "<P>Error updating user info</P>\n";
+		}
+	}
+	else {
+		print "<P>No User Edits Detected</P>";
+	}
+	
+	header("refresh:2;url=index.php?menu=profile");
+}
+
+//function to allow an admin to view any user's profile from the AdminPage.
+function genProfilefromForm($db, $fmData) {
+	$uid = $fmData['prof'];
+	
+	?>
+	<!-- Option for admin to return to adminPage after reviewing a user's profile. This function is only called from adminPage -->
+	<br>
+	<div style='margin-left:10px'>
+		<a class='submit_btn' href='index.php?menu=admin'>Go Back</a>
+	</div>
+	<?php
+
+	genUserProfile($db, $uid);
 }
 ?>
 </body>
