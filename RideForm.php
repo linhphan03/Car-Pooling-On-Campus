@@ -45,6 +45,11 @@
 }
 </style>
 <body>
+<script>
+	function availSeats(element) {
+		document.getElementById("carSeats").value = element;
+	}
+</script>
 	
 <?php
 function genRideForm($db) {
@@ -58,7 +63,7 @@ function genRideForm($db) {
 	<div class="new_ride_form">
 		<FORM name='fmRide' method='POST' action='index.php?menu=procNewRide'>
 			<label for='car'>Choose a car:</label>
-				<select name="car" id=car" class="select_text">
+				<select name="car" id=car" class="select_text" onchange="availSeats(this.value)">
 				<?php
 				while($row = $res->fetch()) {
 					$vid = $row['license_plate'];
@@ -69,9 +74,22 @@ function genRideForm($db) {
 				}
 				?>
 				</select>
+				
+			<!-- Based on selection, asks how many seats are open,can remain as default seats
+			or be changed by user to account for space, someone already going, etc. -->
+			<label for='seats'>How many seats do you have open?</label>
+				<INPUT name="seats" id="carSeats" type='text' class="select_text" />
+				
+			<!-- -->
 			<label for='dest'>Choose a destination and time:</label>
 				<INPUT type='text' class="select_text" name='dest' placeholder='destination' />
-                	<INPUT type="datetime-local" class="date_time" id="date" name="date" />	
+                	<INPUT type="datetime-local" class="date_time" id="date" name="date" /><br>	
+                	
+                	<!-- -->
+                	<label for='min'>How much do you request for this?</label>
+				<INPUT type='text' class="select_text" name='min' placeholder="Minimum: $0?" />
+                	<INPUT type='text' class="select_text" name='max' placeholder="Maximum: $100?" />
+                	
 			<INPUT type='submit' class="submit_btn" value="Add Ride" />
 		</FORM>
 	</div>
@@ -84,15 +102,17 @@ function genRideForm($db) {
 } //close genRideForm
 
 function processRide($db, $uid, $rideData) {
-	$seats = $rideData['car'];
+	$seats = $rideData['seats'];
 	$dest = $rideData['dest'];
 	$date = $rideData['date'];
+	$min = $rideData['min'];
+	$max = $rideData['max'];
 	
 	
 	//query to insert the ride
-	$query = "INSERT INTO Ride(destination, available_seats, dateTime, uid) "
-		. "VALUE('" . $dest . "', $seats, '" . $date . "', $uid)";
-	//print "<P>$query</P>\n";
+	$query = "INSERT INTO Ride(destination, available_seats, dateTime, uid, min, max) "
+		. "VALUE('" . $dest . "', $seats, '" . $date . "', $uid, $min, $max)";
+	print "<P>$query</P>\n";
 	$res = $db->query($query);
 	
 	if($res != FALSE) {
