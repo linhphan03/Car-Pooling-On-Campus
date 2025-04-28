@@ -233,7 +233,7 @@ function genEditUserForm($db, $user) {
     	$payRes = $db->query($payQuery);
     	
     	//Payment TypeInfo
-    	$payTypeQuery = "SELECT DISTINCT payment_type FROM PaymentInfo";
+    	$payTypeQuery = "SELECT * FROM PaymentInfo";
     	$payTypeRes = $db->query($payTypeQuery);
     	
     	//Cars the user has
@@ -249,7 +249,6 @@ function genEditUserForm($db, $user) {
 			$pnum = $row['pnum'];
 			$email = $row['email'];
 			$name = $row['name'];
-			$created_at = $row['created_at'];
 		}
 ?>
     
@@ -278,27 +277,35 @@ function genEditUserForm($db, $user) {
 		
 		<!-- User Payment Info Editing Section -->
 		<div class='col-sm-4'>
-			<FORM name='editPayInfo' method='POST' action='index.php?menu=procUserEdits'>
-				<h2>Payment Info</h2>
-				<table class='table'>
-				<?php
-				while ($pay = $payRes->fetch()) {
-					$type = $pay['payment_type'];
-					$username = $pay['payment_username'];
-					if($type == "Cash") {
-						print "<tr><td>$type</td><td><INPUT type='submit' class='button' value='Delete' /></td><tr>";
-					}
-					else {
-						print "<tr><td>$type : $username</td><td><INPUT type='submit' class='button' value='Delete' /></td><tr>";
-					}
+			<h2>Payment Info</h2>
+			<!-- Deleting a payment type -->
+			<FORM name='delPayInfo' method='POST' action='index.php?menu=procUserEdits'>
+				<INPUT type='hidden' name='delPayFm' value='1' />
+			<?php
+			while ($pay = $payRes->fetch()) {
+				$type = $pay['payment_type'];
+				$username = $pay['payment_username'];
+				if($type == "Cash") {
+					print "<input type='radio' id='paymentInfo' name='pay_info' value='$username'> <!-- Cash also has username (for database purposes), just not displayed -->
+					<label for='paymentInfo'>$type</label><br>";
 				}
-				?>
+				else {
+					print "<input type='radio' id='paymentInfo' name='pay_info' value='$username'>
+					<label for='paymentInfo'>$type: $username</label><br>";
+				}
+			}
+			?>
+			<INPUT type='submit' class="submit_btn" style="width:60%" value="Delete Payment" />
+			</FORM><br>
+			
+			<!-- Adding a new payment type -->
+			<FORM name='addPayInfo' method='POST' action='index.php?menu=procUserEdits'>
+				<INPUT type='hidden' name='addPayFm' value='1' />
 				<!-- Options for what type of payment, followed by the username for it -->
 				<label for='newPay'>Add a new payment:</label><br>
 					<?php print "<tr><td><INPUT type='text' name='payment_type' placeholder='Type' /></td>"; ?>				
-					<?php print "<td><INPUT type='text' name='payment_username' placeholder='Username' /></td></tr>"; ?>
-					<tr><td><INPUT type='submit' class="submit_btn" style="width:75%" value="Add New Payment" /></td></tr>
-				</table>				
+					<?php print "<td><INPUT type='text' name='payment_username' placeholder='Username' /></td></tr>"; ?>	
+				<INPUT type='submit' class="submit_btn" style="width:50%" value="Add Payment" />			
 			</FORM>	
 			</div>
 		<!-- User Car Info Editing Section -->
@@ -317,14 +324,17 @@ function genEditUserForm($db, $user) {
 
 //Process any edits made from the profile edit page. Update in database and then refresh to updated profile.
 function processUserEdits($db, $editData) {
-	print "<P>Process User Info!</P>";
+	$uid   = $_SESSION['uid'];
+
+	print "<P>Processing Edits/Additions!</P>";
+	
+	//user info updates
 	if(isset($editData['editUserFm'])) {
 		$name  = $editData['name'];
 		$pnum  = $editData['pnum'];
 		$email = $editData['email'];
-		$uid   = $_SESSION['uid'];
 		
-		$sqlUpdate = "UPDATE User SET name='$name', pnum='$pnum', email='$email' WHERE uid=$uid;
+		$sqlUpdate = "UPDATE User SET name='$name', pnum='$pnum', email='$email' WHERE uid=$uid
 ";
 		//print "<P>$sqlUpdate</P>";
 		$res = $db->query($sqlUpdate);
@@ -335,8 +345,39 @@ function processUserEdits($db, $editData) {
 			print "<P>Error updating user info</P>\n";
 		}
 	}
+	else if(isset($editData['addPayFm'])) { //Adding a new payment type
+		
+		$type  = $editData['payment_type'];
+		$username  = $editData['payment_username'];
+		
+		$sqlUpdate = "INSERT INTO PaymentInfo (payment_username, payment_type, uid) VALUES ('$username', '$type', $uid)";
+		
+		//print "<P>$sqlUpdate</P>";
+		$res = $db->query($sqlUpdate);
+		
+		if ($res != FALSE) {
+    			print "<P>Payment info added successfully</P>\n";
+		} else {
+			print "<P>Error adding payment info</P>\n";
+		}
+	}
+	else if(isset($editData['delPayFm'])) { //Deleting a payment type
+		
+		$username  = $editData['pay_info'];
+		
+		$sqlUpdate = "DELETE FROM PaymentInfo WHERE payment_username='$username' AND uid=$uid";
+		
+		//print "<P>$sqlUpdate</P>";
+		$res = $db->query($sqlUpdate);
+		
+		if ($res != FALSE) {
+    			print "<P>Payment info deleting successfully</P>\n";
+		} else {
+			print "<P>Error deleting payment info</P>\n";
+		}
+	}
 	else {
-		print "<P>No User Edits Detected</P>";
+		print "<P>No Changes Detected</P>";
 	}
 	
 	header("refresh:2;url=index.php?menu=profile");
