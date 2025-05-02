@@ -308,10 +308,42 @@ function genEditUserForm($db, $user) {
 				<INPUT type='submit' class="submit_btn" style="width:50%" value="Add Payment" />			
 			</FORM>	
 			</div>
+			
+			
 		<!-- User Car Info Editing Section -->
 		<div class='col-sm-4'>
 			<h2>Cars</h2>	
-					
+			<!-- Deleting a car -->
+			<FORM name='delCarInfo' method='POST' action='index.php?menu=procUserEdits'>
+				<INPUT type='hidden' name='delCarFm' value='1' />
+				<?php
+				while ($cars = $carsRes->fetch()) {
+					$vid = $cars['license_plate'];
+					$make = $cars['make'];
+					$model = $cars['model'];
+					$color = $cars['color'];
+					$seats = $cars['seats'];
+				
+					print "<input type='radio' id='carInfo' name='car_info' value='$vid'><label for='carInfo'> $color $make $model with $seats seats</label><br>";
+				}
+				?>
+				<INPUT type='submit' class="submit_btn" style="width:60%" value="Delete Car" />
+			</FORM><br>
+			
+			<!-- Adding a new car -->
+			<FORM name='addCarInfo' method='POST' action='index.php?menu=procUserEdits'>
+				<INPUT type='hidden' name='addCarFm' value='1' />
+				<!-- Input for what car they're adding -->
+				<label for='newCar'>Add a new Car:</label><br>
+					<?php 
+					print "<tr><td><INPUT type='text' name='license_plate' placeholder='License Plate' /></td>";			
+					print "<td><INPUT type='text' name='make' placeholder='Make' /></td></tr>";
+					print "<td><INPUT type='text' name='model' placeholder='Model' /></td></tr>";
+					print "<td><INPUT type='text' name='color' placeholder='Color' /></td></tr>";
+					print "<td><INPUT type='text' name='seats' placeholder='Seats' /></td></tr>";
+					?>	
+				<INPUT type='submit' class="submit_btn" style="width:50%" value="Add Car" />			
+			</FORM>
 		</div>
 	</div>
 </div>
@@ -339,6 +371,7 @@ function processUserEdits($db, $editData) {
 		//print "<P>$sqlUpdate</P>";
 		$res = $db->query($sqlUpdate);
 		
+		//display as verification before refreshing to profile
 		if ($res != FALSE) {
     			print "<P>User Info updated successfully</P>\n";
 		} else {
@@ -355,6 +388,7 @@ function processUserEdits($db, $editData) {
 		//print "<P>$sqlUpdate</P>";
 		$res = $db->query($sqlUpdate);
 		
+		//display as verification before refreshing to profile
 		if ($res != FALSE) {
     			print "<P>Payment info added successfully</P>\n";
 		} else {
@@ -370,10 +404,44 @@ function processUserEdits($db, $editData) {
 		//print "<P>$sqlUpdate</P>";
 		$res = $db->query($sqlUpdate);
 		
+		//display as verification before refreshing to profile
 		if ($res != FALSE) {
     			print "<P>Payment info deleting successfully</P>\n";
 		} else {
 			print "<P>Error deleting payment info</P>\n";
+		}
+	}
+	else if(isset($editData['addCarFm'])) { //Adding a new car
+		$vid = $editData['license_plate'];
+		$make = $editData['make'];
+		$model = $editData['model'];
+		$color = $editData['color'];
+		$seats = $editData['seats'];
+		
+		$sqlUpdate = "INSERT INTO Car (license_plate, make, model, color, seats, uid) VALUES ('$vid', '$make', '$model', '$color', $seats, $uid)";
+		
+		$res = $db->query($sqlUpdate);
+		
+		//display as verification before refreshing to profile
+		if ($res != FALSE) {
+    			print "<P>New Car added successfully</P>\n";
+		} else {
+			print "<P>Error adding new car info</P>\n";
+		}
+	}
+	else if(isset($editData['delCarFm'])) { //Deleting a car
+		
+		$vid  = $editData['car_info'];
+		
+		$sqlUpdate = "DELETE FROM Car WHERE license_plate='$vid' AND uid=$uid";
+		
+		$res = $db->query($sqlUpdate);
+		
+		//display as verification before refreshing to profile
+		if ($res != FALSE) {
+    			print "<P>Car info deleted successfully</P>\n";
+		} else {
+			print "<P>Error deleting car info</P>\n";
 		}
 	}
 	else {
