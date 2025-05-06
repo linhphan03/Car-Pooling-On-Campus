@@ -37,7 +37,7 @@ function genUserProfile($db, $user) {
     	//Previous rides user either drived for or were a passenger in
     	$lastRidesQuery = "SELECT * 
     			     FROM Ride JOIN Requests ON Ride.ride_ID=Requests.ride_ID 
-    			     WHERE Ride.uid=$uid OR Requests.passenger_ID=$uid
+    			     WHERE (Ride.uid=$uid OR Requests.passenger_ID=$uid) AND dateTime < NOW()
     			     ORDER BY dateTime DESC
     			     LIMIT 3";
     	$lastRidesRes = $db->query($lastRidesQuery);
@@ -61,28 +61,31 @@ function genUserProfile($db, $user) {
 			$name = $row['name'];
 			$created_at = $row['created_at'];
 		}
+    		$created_date = new DateTime($date);
+    		$dateCalDriver = $created_date->format('F Y');
 ?>
     
 <!-- Display Section -->
-<div class='profile_form' style='margin-top:30px'>
+<div class='profile_form'>
 	<?php if($uid == $_SESSION['uid']) {
 		print "<a class='submit_btn' href='index.php?menu=editProfile'>Edit Profile</a>";
 	} ?>
 	<div class='row' style='margin:30px'>
 		<div class="col-sm-4">
-			<img src="default_profile.png" alt="Profile Picture" class="img-rounded" width="200" height="200">
+			<img src="default_profile.png" alt="Profile Picture" class="user-avatar-large">
 			<br><br>
 			<!-- User info will be displayed here -->
 			<h2><?php print $name; ?></h2>
-			<h5>Account created on: <?php print $created_at; ?></h5>
-			<p>Phone number: <?php print $pnum; ?></p>
-			<p>Email: <?php print $email; ?></p>
+			<h5>Member since <?php print $dateCalDriver; ?></h5>
+			<h5>Contact Info:</h5>
+			<h6><?php print $pnum; ?></h6>
+			<h6><?php print $email; ?></h6>
 			<br>
-			<h3>Rating:</h3>
+			<h4>Rating:</h4>
 			<?php
 			if ($rateRes->rowCount() > 0) {
 				while ($rate = $rateRes->fetch()) {
-					print "<p>" . $rate['Urating'] . "/5" . "</p>";
+					print "<p> ⭐" . $rate['Urating'] . "/5" . "</p>";
 				}
 			} else {
 				print "<p>No rating found.</p>";
@@ -90,19 +93,23 @@ function genUserProfile($db, $user) {
 			?>
 			<hr class='d-sm-none'>
 		</div>
-		<div class='col-sm-4'>
+		<div class='recent-reviews'>
 			<!-- Payment Info -->
-			<h3>Payment Info:</h3>
+			<h4>Payment Info:</h4>
 			<?php
 			if ($payRes->rowCount() > 0) {
 				while ($pay = $payRes->fetch()) {
 					$type = $pay['payment_type'];
 					$username = $pay['payment_username'];
 					if($type == "Cash") {
-						print "<p>$type</p>";
+						print "<div class='review'>";
+                        				print "<p><strong>$type</strong></p>";
+                    				print "</div>";
 					}
 					else {
-						print "<p>$type: $username</p>";
+						print "<div class='review'>";
+                        				print "<p><strong>$type</strong> @$username</p>";
+                    				print "</div>";
 					}
 				}
 			} else {
@@ -110,17 +117,23 @@ function genUserProfile($db, $user) {
 			}
 			?>
 		</div>
-		<div class='col-sm-4'>
+		<div class='recent-reviews'>
 			<!-- Display the last three most recent reviews of the user-->
-			<h3>Recent Reviews</h3>
-			<ul id="reviews" class="list-group">
+			<h4>Recent Reviews</h4>
 			<?php
 			if ($revsRes->rowCount() > 0) {
 				while ($revs = $revsRes->fetch()) {
-					print "<li class='list-group-item'>From " . $revs['name'] . ": Rated " . $revs['rating'] . " stars, saying '" . $revs['review'] . "'" . "</li>";
+					$name = $revs["name"];
+					$review = $revs["review"];
+					$rating = $revs["rating"];
+					
+					print "<div class='review'>";
+                        			print "<p><strong>$name: </strong>$review</p>";
+                        			print "<p>⭐ $rating/5</p>";
+                    			print "</div>";
 				}
 			} else {
-				print "<li class='list-group-item'>No reviews found.</li>";
+				print "<h6>Looks like everyone enjoyed the ride so much they forgot to review it. 🚗💨🫠</h6>";
 			}
 			?>
 			</ul>
@@ -129,56 +142,73 @@ function genUserProfile($db, $user) {
 	<br>
 	<br>
 	<div class='row' style="margin-left:15px; margin-right:15px;">
-		<div class='col-sm-4'>
+		<div class='recent-reviews'>
 			<!-- Display the cars of the user-->
 			<button type="button" class="btn info-btn" data-toggle="collapse" data-target="#cars">Their's car(s)</button>
 			<ul id="cars" class="collapse list-group">
-			<?php
-			if ($carsRes->rowCount() > 0) {
-				print "<table class='table table-striped'>";
-				print "<tr><th> Plate </th><th> Color </th><th> Make </th><th> Model </th></tr>";
-				while ($car = $carsRes->fetch()) {
-					$plate = $car['license_plate'];
-					$color = $car['color'];
-					$make  = $car['make'];
-					$model = $car['model'];
-					print "<tr><td> $plate </td><td> $color </td><td> $make </td><td> $model </td></tr>";
-				}
-				print "</table>";
-			} else {
-				print "<li class='list-group-item'>No cars found.</li>";
-			}
-			?>
+				<div class="recent-reviews">
+					<?php
+					if ($carsRes->rowCount() > 0) {
+						while ($car = $carsRes->fetch()) {
+							$plate = $car['license_plate'];
+							$color = $car['color'];
+							$make  = $car['make'];
+							$model = $car['model'];
+							print "<div class='review'><p> A $color $make $model w/ Plate Number: $plate </p></div>";
+						}
+					} else {
+						print "<div class='review'><p>No cars found.</li>";
+					}
+					?>
+				</div>
 			</ul>
 		</div>
-		<div class='col-sm-4'>
+		<div class='recent-reviews'>
 			<!-- Display the last three most recent rides user was in, passenger or driver-->
 			<button type="button" class="btn info-btn" data-toggle="collapse" data-target="#lastRides">Recent Rides</button>
 			<ul id="lastRides" class="collapse list-group">
+				<div class="recent-reviews">
 			<?php
 			if ($lastRidesRes->rowCount() > 0) {
 				while ($ride = $lastRidesRes->fetch()) {
-					print "<li class='list-group-item'>" . $ride['destination'] . " on " . $ride['dateTime'] . "</li>";
+					$dest = $ride['destination'];
+					
+					$rideTime = $ride['dateTime'];
+					$date = new DateTime($rideTime);
+    					$dateCal = $date->format('l, F j');
+    					$dateTime = $date->format('g:i A');
+					
+					print "<div class='review'><p>Went to $dest on $dateCal at $dateTime</p></div>";
 				}
 			} else {
-				print "<li class='list-group-item'>No rides found.</li>";
+				print "<div class='review'>No rides found.</div>";
 			}
 			?>
+				</div>
 			</ul>
 		</div>
 		<div class='col-sm-4'>
 			<!-- Display the next three rides where the user is the driver, if any-->
 			<button type="button" class="btn info-btn" data-toggle="collapse" data-target="#nextRides">Upcoming Rides</button>
 			<ul id="nextRides" class="collapse list-group">
-			<?php
-			if ($nextRidesRes->rowCount() > 0) {
-				while ($ride = $nextRidesRes->fetch()) {
-					print "<li class='list-group-item'>" . $ride['destination'] . " on " . $ride['dateTime'] . "</li>";
-				}
-			} else {
-				print "<li class='list-group-item'>No upcoming rides found.</li>";
-			}
-			?>
+				<div class="recent-reviews">
+					<?php
+					if ($nextRidesRes->rowCount() > 0) {
+						while ($ride = $nextRidesRes->fetch()) {
+							$dest = $ride['destination'];
+							
+							$rideTime = $ride['dateTime'];
+							$date = new DateTime($rideTime);
+		    					$dateCal = $date->format('l, F j');
+		    					$dateTime = $date->format('g:i A');
+							
+							print "<div class='review'><p>Going to $dest on $dateCal at $dateTime</p></div>";
+						}
+					} else {
+						print "<div class='review'><p>No upcoming rides found.</p></div>";
+					}
+					?>
+				</div>
 			</ul>
 			<br>
 		</div>
@@ -203,7 +233,7 @@ function genEditUserForm($db, $user) {
     	$payRes = $db->query($payQuery);
     	
     	//Payment TypeInfo
-    	$payTypeQuery = "SELECT DISTINCT payment_type FROM PaymentInfo";
+    	$payTypeQuery = "SELECT * FROM PaymentInfo";
     	$payTypeRes = $db->query($payTypeQuery);
     	
     	//Cars the user has
@@ -219,7 +249,6 @@ function genEditUserForm($db, $user) {
 			$pnum = $row['pnum'];
 			$email = $row['email'];
 			$name = $row['name'];
-			$created_at = $row['created_at'];
 		}
 ?>
     
@@ -248,33 +277,73 @@ function genEditUserForm($db, $user) {
 		
 		<!-- User Payment Info Editing Section -->
 		<div class='col-sm-4'>
-			<FORM name='editPayInfo' method='POST' action='index.php?menu=procUserEdits'>
-				<h2>Payment Info</h2>
-				<table class='table'>
-				<?php
-				while ($pay = $payRes->fetch()) {
-					$type = $pay['payment_type'];
-					$username = $pay['payment_username'];
-					if($type == "Cash") {
-						print "<tr><td>$type</td><td><INPUT type='submit' class='button' value='Delete' /></td><tr>";
-					}
-					else {
-						print "<tr><td>$type : $username</td><td><INPUT type='submit' class='button' value='Delete' /></td><tr>";
-					}
+			<h2>Payment Info</h2>
+			<!-- Deleting a payment type -->
+			<FORM name='delPayInfo' method='POST' action='index.php?menu=procUserEdits'>
+				<INPUT type='hidden' name='delPayFm' value='1' />
+			<?php
+			while ($pay = $payRes->fetch()) {
+				$type = $pay['payment_type'];
+				$username = $pay['payment_username'];
+				if($type == "Cash") {
+					print "<input type='radio' id='paymentInfo' name='pay_info' value='$username'> <!-- Cash also has username (for database purposes), just not displayed -->
+					<label for='paymentInfo'>$type</label><br>";
 				}
-				?>
+				else {
+					print "<input type='radio' id='paymentInfo' name='pay_info' value='$username'>
+					<label for='paymentInfo'>$type: $username</label><br>";
+				}
+			}
+			?>
+			<INPUT type='submit' class="submit_btn" style="width:60%" value="Delete Payment" />
+			</FORM><br>
+			
+			<!-- Adding a new payment type -->
+			<FORM name='addPayInfo' method='POST' action='index.php?menu=procUserEdits'>
+				<INPUT type='hidden' name='addPayFm' value='1' />
 				<!-- Options for what type of payment, followed by the username for it -->
 				<label for='newPay'>Add a new payment:</label><br>
 					<?php print "<tr><td><INPUT type='text' name='payment_type' placeholder='Type' /></td>"; ?>				
-					<?php print "<td><INPUT type='text' name='payment_username' placeholder='Username' /></td></tr>"; ?>
-					<tr><td><INPUT type='submit' class="submit_btn" style="width:75%" value="Add New Payment" /></td></tr>
-				</table>				
+					<?php print "<td><INPUT type='text' name='payment_username' placeholder='Username' /></td></tr>"; ?>	
+				<INPUT type='submit' class="submit_btn" style="width:50%" value="Add Payment" />			
 			</FORM>	
 			</div>
+			
+			
 		<!-- User Car Info Editing Section -->
 		<div class='col-sm-4'>
 			<h2>Cars</h2>	
-					
+			<!-- Deleting a car -->
+			<FORM name='delCarInfo' method='POST' action='index.php?menu=procUserEdits'>
+				<INPUT type='hidden' name='delCarFm' value='1' />
+				<?php
+				while ($cars = $carsRes->fetch()) {
+					$vid = $cars['license_plate'];
+					$make = $cars['make'];
+					$model = $cars['model'];
+					$color = $cars['color'];
+					$seats = $cars['seats'];
+				
+					print "<input type='radio' id='carInfo' name='car_info' value='$vid'><label for='carInfo'> $color $make $model with $seats seats</label><br>";
+				}
+				?>
+				<INPUT type='submit' class="submit_btn" style="width:60%" value="Delete Car" />
+			</FORM><br>
+			
+			<!-- Adding a new car -->
+			<FORM name='addCarInfo' method='POST' action='index.php?menu=procUserEdits'>
+				<INPUT type='hidden' name='addCarFm' value='1' />
+				<!-- Input for what car they're adding -->
+				<label for='newCar'>Add a new Car:</label><br>
+					<?php 
+					print "<tr><td><INPUT type='text' name='license_plate' placeholder='License Plate' /></td>";			
+					print "<td><INPUT type='text' name='make' placeholder='Make' /></td></tr>";
+					print "<td><INPUT type='text' name='model' placeholder='Model' /></td></tr>";
+					print "<td><INPUT type='text' name='color' placeholder='Color' /></td></tr>";
+					print "<td><INPUT type='text' name='seats' placeholder='Seats' /></td></tr>";
+					?>	
+				<INPUT type='submit' class="submit_btn" style="width:50%" value="Add Car" />			
+			</FORM>
 		</div>
 	</div>
 </div>
@@ -287,26 +356,96 @@ function genEditUserForm($db, $user) {
 
 //Process any edits made from the profile edit page. Update in database and then refresh to updated profile.
 function processUserEdits($db, $editData) {
-	print "<P>Process User Info!</P>";
+	$uid   = $_SESSION['uid'];
+
+	print "<P>Processing Edits/Additions!</P>";
+	
+	//user info updates
 	if(isset($editData['editUserFm'])) {
 		$name  = $editData['name'];
 		$pnum  = $editData['pnum'];
 		$email = $editData['email'];
-		$uid   = $_SESSION['uid'];
 		
-		$sqlUpdate = "UPDATE User SET name='$name', pnum='$pnum', email='$email' WHERE uid=$uid;
+		$sqlUpdate = "UPDATE User SET name='$name', pnum='$pnum', email='$email' WHERE uid=$uid
 ";
 		//print "<P>$sqlUpdate</P>";
 		$res = $db->query($sqlUpdate);
 		
+		//display as verification before refreshing to profile
 		if ($res != FALSE) {
     			print "<P>User Info updated successfully</P>\n";
 		} else {
 			print "<P>Error updating user info</P>\n";
 		}
 	}
+	else if(isset($editData['addPayFm'])) { //Adding a new payment type
+		
+		$type  = $editData['payment_type'];
+		$username  = $editData['payment_username'];
+		
+		$sqlUpdate = "INSERT INTO PaymentInfo (payment_username, payment_type, uid) VALUES ('$username', '$type', $uid)";
+		
+		//print "<P>$sqlUpdate</P>";
+		$res = $db->query($sqlUpdate);
+		
+		//display as verification before refreshing to profile
+		if ($res != FALSE) {
+    			print "<P>Payment info added successfully</P>\n";
+		} else {
+			print "<P>Error adding payment info</P>\n";
+		}
+	}
+	else if(isset($editData['delPayFm'])) { //Deleting a payment type
+		
+		$username  = $editData['pay_info'];
+		
+		$sqlUpdate = "DELETE FROM PaymentInfo WHERE payment_username='$username' AND uid=$uid";
+		
+		//print "<P>$sqlUpdate</P>";
+		$res = $db->query($sqlUpdate);
+		
+		//display as verification before refreshing to profile
+		if ($res != FALSE) {
+    			print "<P>Payment info deleting successfully</P>\n";
+		} else {
+			print "<P>Error deleting payment info</P>\n";
+		}
+	}
+	else if(isset($editData['addCarFm'])) { //Adding a new car
+		$vid = $editData['license_plate'];
+		$make = $editData['make'];
+		$model = $editData['model'];
+		$color = $editData['color'];
+		$seats = $editData['seats'];
+		
+		$sqlUpdate = "INSERT INTO Car (license_plate, make, model, color, seats, uid) VALUES ('$vid', '$make', '$model', '$color', $seats, $uid)";
+		
+		$res = $db->query($sqlUpdate);
+		
+		//display as verification before refreshing to profile
+		if ($res != FALSE) {
+    			print "<P>New Car added successfully</P>\n";
+		} else {
+			print "<P>Error adding new car info</P>\n";
+		}
+	}
+	else if(isset($editData['delCarFm'])) { //Deleting a car
+		
+		$vid  = $editData['car_info'];
+		
+		$sqlUpdate = "DELETE FROM Car WHERE license_plate='$vid' AND uid=$uid";
+		
+		$res = $db->query($sqlUpdate);
+		
+		//display as verification before refreshing to profile
+		if ($res != FALSE) {
+    			print "<P>Car info deleted successfully</P>\n";
+		} else {
+			print "<P>Error deleting car info</P>\n";
+		}
+	}
 	else {
-		print "<P>No User Edits Detected</P>";
+		print "<P>No Changes Detected</P>";
 	}
 	
 	header("refresh:2;url=index.php?menu=profile");
