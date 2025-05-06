@@ -94,7 +94,7 @@
                 include("db_connect.php");
                 //fetching all the rides that are not created by the current user
                 //also checks whether the current user has already enrolled in the ride
-                $possibleRidesQuery = "SELECT * FROM Ride WHERE uid<>$uid AND dateTime>=NOW() AND $uid NOT IN (SELECT passenger_ID FROM Requests WHERE Requests.ride_ID = Ride.ride_id) ORDER BY dateTime ASC LIMIT 5";
+                $possibleRidesQuery = "SELECT * FROM Ride WHERE uid<>$uid AND dateTime>=NOW() AND Ride.available_seats>0 AND $uid NOT IN (SELECT passenger_ID FROM Requests WHERE Requests.ride_ID = Ride.ride_id) ORDER BY dateTime ASC LIMIT 5";
                 try {
                     $result = $db->query($possibleRidesQuery);
 

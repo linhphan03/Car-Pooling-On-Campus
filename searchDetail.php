@@ -400,48 +400,91 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['review-submit'])) {
 
     <!-- Right Section -->
     <div class="ride-detail-right">
+        <?php
+        //To check whether the current user is the driver, if it is then just show the passenger that are part of this ride so far
+        if ($_SESSION['uid'] === $driverID) {
+            ?>
+            <h3>Passengers on This Ride</h3>
+            <div class="passenger-list"
+                style="margin-top: 1rem; padding: 1rem; background-color: #f8f9fa; border-radius: 10px;">
+                <?php
+                try {
+                    $passengerQuery = "SELECT U.name, U.email FROM Requests R JOIN User U ON R.passenger_ID = U.uid WHERE R.ride_ID = :ride_id";
+                    $stmt = $db->prepare($passengerQuery);
+                    $stmt->execute([':ride_id' => $ride_id]);
 
-        <h3>About the driver</h3>
-        <div class="about-grid">
-            <div class="driver-about">
-                <img class="driver-avatar-large" src="driver_image.png" alt="Driver Profile">
-                <p><strong>Millor</strong> · ⭐ <?= $averageRating ?> (<?= $nRides ?> driven)</p>
-                <p>Member since <?= $dateCalDriver ?></p>
-                <p>🚗 Passengers driven: <strong><?= $nPassenger ?></strong></p>
-                <div class="verifications">
-                    <p>✅ Driver's license verified</p>
-                    <p>📨 Email address: Verified</p>
-                    <p>📜 Community agreement: Signed</p>
+                    $hasPassengers = false;
+                    while ($passenger = $stmt->fetch()) {
+                        $hasPassengers = true;
+                        ?>
+                        <div style="padding: 0.5rem 0; border-bottom: 1px solid #ddd;">
+                            <p style="margin: 0;"><strong><?= htmlspecialchars($passenger['name']) ?></strong></p>
+                            <p style="margin: 0; font-size: 0.9rem; color: #555;">📧 <?= htmlspecialchars($passenger['email']) ?>
+                            </p>
+                        </div>
+                        <?php
+                    }
+
+                    if (!$hasPassengers) {
+                        echo "<p>No passengers have booked this ride yet.</p>";
+                    }
+
+                } catch (Exception $e) {
+                    echo "<p>Error loading passenger list.</p>";
+                }
+                ?>
+            </div>
+            <?php
+
+        } else {
+            ?>
+            <h3>About the driver</h3>
+            <div class="about-grid">
+                <div class="driver-about">
+                    <img class="driver-avatar-large" src="driver_image.png" alt="Driver Profile">
+                    <p><strong><?=$driverName?></strong> · ⭐ <?= $averageRating ?> (<?= $nRides ?> driven)</p>
+                    <p>Member since <?= $dateCalDriver ?></p>
+                    <p>🚗 Passengers driven: <strong><?= $nPassenger ?></strong></p>
+                    <div class="verifications">
+                        <p>✅ Driver's license verified</p>
+                        <p>📨 Email address: Verified</p>
+                        <p>📜 Community agreement: Signed</p>
+                    </div>
+                </div>
+
+                <div class="recent-reviews">
+                    <h4>Recent reviews</h4>
+                    <?php
+                    $no_data = 0;
+                    while ($row = $ratingData->fetch()) {
+                        $no_data = 1;
+
+                        ?>
+                        <div class="review">
+                            <p><strong><?= $row["name"] ?>:</strong> <?= $row["review"] ?></p>
+                            <p>⭐ <?= $row["rating"] ?>/5</p>
+                        </div>
+                        <?php
+                    }
+
+                    ?>
+                    <?php
+                    if ($no_data != 0) {
+                        ?>
+                        <button class="view-all-reviews" onclick="openAllReviewsModal()">Read all reviews →</button>
+                        <?php
+                    } else {
+                        print "<h6>Looks like everyone enjoyed the ride so much they forgot to review it. 🚗💨🫠</h6>";
+                    }
+                    ?>
                 </div>
             </div>
 
-            <div class="recent-reviews">
-                <h4>Recent reviews</h4>
-                <?php
-                $no_data = 0;
-                while ($row = $ratingData->fetch()) {
-                    $no_data = 1;
 
-                    ?>
-                    <div class="review">
-                        <p><strong><?= $row["name"] ?>:</strong> <?= $row["review"] ?></p>
-                        <p>⭐ <?= $row["rating"] ?>/5</p>
-                    </div>
-                    <?php
-                }
+            <?php
+        }
 
-                ?>
-                <?php
-                if ($no_data != 0) {
-                    ?>
-                    <button class="view-all-reviews" onclick="openAllReviewsModal()">Read all reviews →</button>
-                    <?php
-                } else {
-                    print "<h6>Looks like everyone enjoyed the ride so much they forgot to review it. 🚗💨🫠</h6>";
-                }
-                ?>
-            </div>
-        </div>
+        ?>
 
     </div>
 
