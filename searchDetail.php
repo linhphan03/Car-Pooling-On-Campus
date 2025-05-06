@@ -223,8 +223,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['review-submit'])) {
             <p class="ride-time">Leaving <?= $dateCal ?> at <?= $dateTime ?></p>
             <p><strong>Pickup:</strong> Gettysburg College</p>
             <p><strong>Dropoff:</strong> <?= $destination ?></p>
-            <p class="seats-left"><?= $availableSeats ?> left · <span
-                    class="price">$<?= $minPrice ?>-$<?= $maxPrice ?></span></p>
+            <?php
+            if ($availableSeats == 0) {
+                ?>
+                <p class="seats-left">Ride is Full . <span class="price">$<?= $minPrice ?>-$<?= $maxPrice ?></span></p>
+                <?php
+            } else {
+                ?>
+                <p class="seats-left"><?= $availableSeats ?> left · <span
+                        class="price">$<?= $minPrice ?>-$<?= $maxPrice ?></span></p>
+                <?php
+            }
+            ?>
         </div>
 
         <div class="car-info">
@@ -409,7 +419,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['review-submit'])) {
                 style="margin-top: 1rem; padding: 1rem; background-color: #f8f9fa; border-radius: 10px;">
                 <?php
                 try {
-                    $passengerQuery = "SELECT U.name, U.email FROM Requests R JOIN User U ON R.passenger_ID = U.uid WHERE R.ride_ID = :ride_id";
+                    $passengerQuery = "
+            SELECT 
+                U.uid,
+                U.name, 
+                U.email,
+                ROUND(AVG(R.rating), 1) AS avg_rating
+            FROM Requests Req
+            JOIN User U ON Req.passenger_ID = U.uid
+            LEFT JOIN Rates R ON R.reviewed_id = U.uid
+            WHERE Req.ride_ID = :ride_id
+            GROUP BY U.uid, U.name, U.email
+        ";
                     $stmt = $db->prepare($passengerQuery);
                     $stmt->execute([':ride_id' => $ride_id]);
 
@@ -417,9 +438,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['review-submit'])) {
                     while ($passenger = $stmt->fetch()) {
                         $hasPassengers = true;
                         ?>
-                        <div style="padding: 0.5rem 0; border-bottom: 1px solid #ddd;">
-                            <p style="margin: 0;"><strong><?= htmlspecialchars($passenger['name']) ?></strong></p>
-                            <p style="margin: 0; font-size: 0.9rem; color: #555;">📧 <?= htmlspecialchars($passenger['email']) ?>
+                        <div style="padding: 1rem 0; border-bottom: 1px solid #ddd;">
+                            <p style="margin: 0; font-size: 1.1rem; font-weight: 600;">
+                                👤 <a href="profile.php?uid=<?= $passenger['uid'] ?>"
+                                    style="color: #007bff; text-decoration: none;">
+                                    <?= htmlspecialchars($passenger['name']) ?>
+                                </a>
+                            </p>
+                            <p style="margin: 0.25rem 0 0 0; font-size: 0.95rem; color: #555;">
+                                📧 <?= htmlspecialchars($passenger['email']) ?>
+                            </p>
+                            <p style="margin: 0.25rem 0 0 0; font-size: 0.95rem; color: #555;">
+                                ⭐ Rating: <?= ($passenger['avg_rating'] !== null) ? $passenger['avg_rating'] . '/5' : 'N/A' ?>
                             </p>
                         </div>
                         <?php
@@ -442,7 +472,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['review-submit'])) {
             <div class="about-grid">
                 <div class="driver-about">
                     <img class="driver-avatar-large" src="driver_image.png" alt="Driver Profile">
-                    <p><strong><?=$driverName?></strong> · ⭐ <?= $averageRating ?> (<?= $nRides ?> driven)</p>
+                    <p><strong><?= $driverName ?></strong> · ⭐ <?= $averageRating ?> (<?= $nRides ?> driven)</p>
                     <p>Member since <?= $dateCalDriver ?></p>
                     <p>🚗 Passengers driven: <strong><?= $nPassenger ?></strong></p>
                     <div class="verifications">

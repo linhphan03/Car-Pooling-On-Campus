@@ -45,17 +45,12 @@
 }
 </style>
 <body>
-<script>
-	function availSeats(element) {
-		document.getElementById("carSeats").value = element;
-	}
-</script>
 	
 <?php
 function genRideForm($db) {
 	$uid = $_SESSION['uid'];
 	
-	$query = "SELECT license_plate, make, model, seats FROM Car WHERE uid=$uid";
+	$query = "SELECT license_plate, make, model FROM Car WHERE uid=$uid";
 	$res = $db->query($query);
 	
 	if($res != FALSE) {
@@ -63,14 +58,13 @@ function genRideForm($db) {
 	<div class="new_ride_form">
 		<FORM name='fmRide' method='POST' action='index.php?menu=procNewRide'>
 			<label for='car'>Choose a car:</label>
-				<select name="car" id=car" class="select_text" onchange="availSeats(this.value)">
+				<select name="car" id=car" class="select_text">
 				<?php
 				while($row = $res->fetch()) {
 					$vid = $row['license_plate'];
 					$make = $row['make'];
 					$model = $row['model'];
-					$seats = $row['seats'];
-					print "<option value='$seats'>$make $model</option>";
+					print "<option value='$vid'>$make $model</option>";
 				}
 				?>
 				</select>
@@ -105,23 +99,24 @@ function processRide($db, $uid, $rideData) {
 	$seats = $rideData['seats'];
 	$dest = $rideData['dest'];
 	$date = $rideData['date'];
+	$vid = $rideData['car'];
 	$min = $rideData['min'];
 	$max = $rideData['max'];
 	
 	
 	//query to insert the ride
-	$query = "INSERT INTO Ride(destination, available_seats, dateTime, uid, min, max) "
-		. "VALUE('" . $dest . "', $seats, '" . $date . "', $uid, $min, $max)";
+	$query = "INSERT INTO Ride(destination, available_seats, dateTime, uid, vid, min, max) "
+		. "VALUE('" . $dest . "', $seats, '" . $date . "', $uid, '" . $vid . "', $min, $max)";
 	print "<P>$query</P>\n";
 	$res = $db->query($query);
 	
 	if($res != FALSE) {
 		print "<P>Ride Created </P>\n";
-		header("refresh:2;url=index.php");
 	}
 	else {
 		print "<P>Failed to create ride </P>\n";
 	}
+	header("refresh:2;url=index.php");
 } //close processRide
 
 ?>
