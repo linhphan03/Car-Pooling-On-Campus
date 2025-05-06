@@ -8,7 +8,7 @@
 //	the last 3 rides they were in, the next 3 rides they're in, and their rating.
 	
 function genUserProfile($db, $user) {
-	$uid = $user;
+		$uid = $user;
     
     	//User Info
     	$query = "SELECT * FROM User WHERE uid=$uid";

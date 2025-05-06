@@ -119,14 +119,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['cancelButton'])) {
         //checks whether the current user is current driver
         $user_id = $_SESSION['uid'];
         if ($user_id == $driverID) {
-            // //extremly caution
-            // $db->beginTransaction();
-            // $deleteRequestStmt = $db->prepare("DELETE FROM Requests WHERE ride_ID = :ride_ID");
-            // $deleteRequestStmt->execute([':ride_ID' => $ride_id]);
-            // $deleteStmt = $db->prepare("DELETE FROM Ride WHERE ride_ID = :ride_ID");
-            // $deleteStmt->execute([':ride_ID' => $ride_id]);
+            //extremly caution
+            $db->beginTransaction();
+            $deleteRequestStmt = $db->prepare("DELETE FROM Requests WHERE ride_ID = :ride_ID");
+            $deleteRequestStmt->execute([':ride_ID' => $ride_id]);
+            $deleteStmt = $db->prepare("DELETE FROM Ride WHERE ride_ID = :ride_ID");
+            $deleteStmt->execute([':ride_ID' => $ride_id]);
 
-            // $db->commit();
+            $db->commit();
             header("Location: index.php?menu=success&type=cancel");
         } else {
 
@@ -440,10 +440,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['review-submit'])) {
                         ?>
                         <div style="padding: 1rem 0; border-bottom: 1px solid #ddd;">
                             <p style="margin: 0; font-size: 1.1rem; font-weight: 600;">
-                                👤 <a href="profile.php?uid=<?= $passenger['uid'] ?>"
-                                    style="color: #007bff; text-decoration: none;">
+                                👤 <span class="passenger-link" style="color: #007bff; cursor: pointer; text-decoration: underline;"
+                                    data-name="<?= htmlspecialchars($passenger['name']) ?>"
+                                    data-email="<?= htmlspecialchars($passenger['email']) ?>"
+                                    data-rating="<?= ($passenger['avg_rating'] !== null) ? $passenger['avg_rating'] . '/5' : 'N/A' ?>"
+                                    data-uid="<?= $passenger['uid'] ?>">
                                     <?= htmlspecialchars($passenger['name']) ?>
-                                </a>
+                                </span>
                             </p>
                             <p style="margin: 0.25rem 0 0 0; font-size: 0.95rem; color: #555;">
                                 📧 <?= htmlspecialchars($passenger['email']) ?>
@@ -586,6 +589,25 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['review-submit'])) {
     </div>
 </div>
 
+<!-- This is a pop-up window for showing detail information about the user -->
+<div id="passengerModal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; 
+    background:rgba(0,0,0,0.5); z-index:1000; align-items:center; justify-content:center;">
+    <div style="background:white; padding:2rem; border-radius:10px; width:90%; max-width:500px; position:relative;">
+        <span id="closeModal"
+            style="position:absolute; top:10px; right:15px; cursor:pointer; font-size:20px;">&times;</span>
+        <h2 id="modalName"></h2>
+        <p><strong>Email:</strong> <span id="modalEmail"></span></p>
+        <p><strong>Average Rating:</strong> <span id="modalRating"></span></p>
+        <!-- Optional: add more info here -->
+        <div id="modalReviews">
+            <em>Loading reviews...</em>
+        </div>
+    </div>
+</div>
+
+
+
+
 <script>
     function openReviewModal(uid, name) {
         document.getElementById('reviewed_id').value = uid;
@@ -604,4 +626,47 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['review-submit'])) {
     function closeAllReviewsModal() {
         document.getElementById('allReviewsModal').style.display = 'none';
     }
+
+    //to show the temporary profile of a passenger
+    document.querySelectorAll('.passenger-link').forEach(link => {
+        link.addEventListener('click', async () => {
+            const name = link.dataset.name;
+            const email = link.dataset.email;
+            const rating = link.dataset.rating;
+            const uid = link.dataset.uid;
+
+            document.getElementById('modalName').textContent = name;
+            document.getElementById('modalEmail').textContent = email;
+            document.getElementById('modalRating').textContent = rating;
+
+            const reviewsContainer = document.getElementById('modalReviews');
+            reviewsContainer.innerHTML = "<em>Loading reviews...</em>";
+
+            try {
+                const response = await fetch(`get_reviews.php?uid=${uid}`);
+                const data = await response.json();
+                if (data.length === 0) {
+                    reviewsContainer.innerHTML = "<p>No reviews yet.</p>";
+                } else {
+                    reviewsContainer.innerHTML = "<ul>" + data.map(r => `<li>${r.review} (⭐ ${r.rating})</li>`).join('') + "</ul>";
+                }
+            } catch (error) {
+                reviewsContainer.innerHTML = "<p>Error loading reviews.</p>";
+            }
+
+            document.getElementById('passengerModal').style.display = 'flex';
+        });
+    });
+
+    document.getElementById('closeModal').addEventListener('click', () => {
+        document.getElementById('passengerModal').style.display = 'none';
+    });
+
+    window.addEventListener('click', (e) => {
+        if (e.target === document.getElementById('passengerModal')) {
+            document.getElementById('passengerModal').style.display = 'none';
+        }
+    });
+
+
 </script>
