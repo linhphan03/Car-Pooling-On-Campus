@@ -26,8 +26,12 @@ try {
     $driverName = $driverData["name"];
     $destination = $driverData["destination"];
     $availableSeats = $driverData["available_seats"];
-    $minPrice = $driverData['min'];
-    $maxPrice = $driverData['max'];
+    $minPrice = $driverData['min'] == null ? "N/A" : $driverData['min'];
+    $maxPrice = $driverData['max'] == null ? "N/A" : $driverData['max'];
+    $car_license = $driverData['vid'] == null ? "N/A" : $driverData['vid'];
+
+
+
 
     //format the raw date obtained from the db
     $dateTimeFromDB = $driverData['dateTime'];
@@ -64,6 +68,8 @@ try {
     $nPassengerResult = $db->query($nPassengerQuer);
 
     $nPassenger = $nPassengerResult->fetch()["tPassenger"];
+
+    //query to fetch the car information
 
 
 } catch (Exception $ex) {
@@ -236,16 +242,49 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['review-submit'])) {
             }
             ?>
         </div>
+        <!-- Fetch all the car information associated with this ride -->
+        <?php
+        if ($car_license == 'N/A') {
+            ?>
+            <div class="car-info">
+                <img class="car-img" src="car.jpeg" alt="Car Image">
+                <ul class="car-details">
+                    <li><strong>Toyota Camry</strong> · 2020 · White</li>
+                    <li>Max <?= $availableSeats ?> people in the back</li>
+                    <li>Small luggage ok</li>
+                    <li>No pets</li>
+                </ul>
+            </div>
 
-        <div class="car-info">
-            <img class="car-img" src="car.jpeg" alt="Car Image">
-            <ul class="car-details">
-                <li><strong>Toyota Camry</strong> · 2020 · White</li>
-                <li>Max 3 people in the back</li>
-                <li>Small luggage ok</li>
-                <li>No pets</li>
-            </ul>
-        </div>
+            <?php
+        } else {
+            try {
+                $car_stmt = $db->prepare("SELECT * FROM Car Where license_plate = :lp");
+                $car_stmt->execute(['lp' => $car_license]);
+                $car_Data = $car_stmt->fetch();
+                ?>
+
+                <div class="car-info">
+                    <img class="car-img" src="car.jpeg" alt="Car Image">
+                    <ul class="car-details">
+                        <li><strong><?=$car_Data["make"]?> </strong> · <?=$car_Data["model"]?> · <?=$car_Data["color"]?></li>
+                        <li>Max <?=$car_Data["seats"]?> people in the back</li>
+                        <li><strong>License Plate: </strong><?=$car_Data["license_plate"]?></li>
+                        
+                    </ul>
+                </div>
+
+                <?php
+
+
+            } catch (Exception $ex) {
+                print "There was an error fetching the data of the car";
+            }
+        }
+
+        ?>
+
+
 
         <?php
         //checks whether the date is in the past
