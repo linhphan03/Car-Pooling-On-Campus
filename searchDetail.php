@@ -26,6 +26,8 @@ try {
     $driverName = $driverData["name"];
     $destination = $driverData["destination"];
     $availableSeats = $driverData["available_seats"];
+    $minPrice = $driverData['min'];
+    $maxPrice = $driverData['max'];
 
     //format the raw date obtained from the db
     $dateTimeFromDB = $driverData['dateTime'];
@@ -144,7 +146,24 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['cancelButton'])) {
         <div class="ride-profile">
             <img class="driver-avatar" src="driver_image.png" alt="Driver Profile">
             <div class="driver-info">
-                <h3><?= $driverName ?></h3>
+                <!--  -->
+                <h3>
+                    <?php
+                    if ($driverID == $_SESSION['uid']) {
+                        ?>
+                        You
+                        <?php
+                    } else {
+                        ?>
+                        <?= $driverName ?>
+                        <?php
+                    }
+
+                    ?>
+
+
+
+                </h3>
                 <p class="rating">⭐ <?= $averageRating ?> · <?= $nRides ?> trips driven</p>
             </div>
         </div>
@@ -154,7 +173,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['cancelButton'])) {
             <p class="ride-time">Leaving <?= $dateCal ?> at <?= $dateTime ?></p>
             <p><strong>Pickup:</strong> Gettysburg College</p>
             <p><strong>Dropoff:</strong> <?= $destination ?></p>
-            <p class="seats-left"><?= $availableSeats ?> left · <span class="price">Price Negotiable</span></p>
+            <p class="seats-left"><?= $availableSeats ?> left · <span
+                    class="price">$<?= $minPrice ?>-$<?= $maxPrice ?></span></p>
         </div>
 
         <div class="car-info">
@@ -168,43 +188,54 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['cancelButton'])) {
         </div>
 
         <?php
-        if ($action_id == 1) {
-            $user_id = $_SESSION['uid'];
+        //checks whether the date is in the past
+        if (new DateTime($dateTimeFromDB)<new DateTime()) {
+            ?>
 
-            $stmt = $db->prepare("SELECT 1 FROM Requests WHERE ride_ID = :ride_id AND passenger_ID = :user_id LIMIT 1");
-            $stmt->execute([
-                ':ride_id' => $ride_id,
-                ':user_id' => $user_id
-            ]);
+            <div class="book-btn-container">
+                <button disabled class="book-btn" style="background-color: none;">Ride in the Past</button>
+            </div>
+            <h1>Hello</h1>
+            <?php
+        } else {
+            if ($action_id == 1) {
+                $user_id = $_SESSION['uid'];
 
-            $exists = $stmt->fetch();
-            if ($exists) {
-                ?>
-                <div class="book-btn-container">
-                    <button class="book-btn" style="background-color: red;">Cancel Ride</button>
-                </div>
-                <?php
-            } else {
-                ?>
-                <form method="POST">
+                $stmt = $db->prepare("SELECT 1 FROM Requests WHERE ride_ID = :ride_id AND passenger_ID = :user_id LIMIT 1");
+                $stmt->execute([
+                    ':ride_id' => $ride_id,
+                    ':user_id' => $user_id
+                ]);
+
+                $exists = $stmt->fetch();
+                if ($exists) {
+                    ?>
                     <div class="book-btn-container">
-                        <button type="submit" name="myButton" class="book-btn">Book now</button>
+                        <button class="book-btn" style="background-color: red;">Cancel Ride</button>
                     </div>
-                </form>
+                    <?php
+                } else {
+                    ?>
+                    <form method="POST">
+                        <div class="book-btn-container">
+                            <button type="submit" name="myButton" class="book-btn">Book now</button>
+                        </div>
+                    </form>
+                    <?php
+                }
+            } else if ($action_id == 2) {
+
+                ?>
+                    <form method="POST">
+                        <div class="book-btn-container">
+                            <button name="cancelButton" type="submit" class="book-btn" style="background-color: red;">Cancel
+                                Ride</button>
+                        </div>
+                    </form>
+
+
                 <?php
             }
-        } else if ($action_id == 2) {
-
-            ?>
-                <form method="POST">
-                    <div class="book-btn-container">
-                        <button name="cancelButton" type="submit" class="book-btn" style="background-color: red;">Cancel
-                            Ride</button>
-                    </div>
-                </form>
-
-
-            <?php
         }
         ?>
     </div>

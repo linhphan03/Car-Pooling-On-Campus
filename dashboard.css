@@ -248,7 +248,7 @@
 
 /* Individual Ride Card */
 .ride-card {
-  
+  position: relative;
   display: flex;
   flex-direction: column;
   justify-content: space-around;
@@ -336,4 +336,41 @@
     padding: 0;
   }
 }
+
+corner-tag {
+  position: relative;
+  top: 100px;
+  left: 0;
+  padding: 0.4rem 1rem;
+  border-bottom-right-radius: 12px;
+  font-size: 0.85rem;
+  font-weight: bold;
+  color: white;
+  background-color: rebeccapurple;
+  height: 10px;
+  width: 40%;
+}
+
+.stack{
+  position:absolute;
+  top: 0%;
+  left: 0%;
+  height: 10%;
+  width: 30%;
+  border-bottom-right-radius: 12px;
+  background-color: rebeccapurple;
+  color: white;
+  font-weight: 600;
+}
+
+.stack.created-tag{
+  background-color: #007bff;
+}
+
+.stack.joined-tag{
+  background-color: #28a745;
+}
+
+
+
 

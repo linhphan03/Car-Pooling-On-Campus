@@ -18,16 +18,6 @@ if (!isset($_SESSION["uid"])) {
         $query = "SELECT * FROM Ride WHERE ((Ride.uid=$uid) OR Ride.ride_id IN(SELECT ride_ID FROM Requests WHERE passenger_ID = $uid)) AND Ride.dateTime >= NOW()  ORDER BY dateTime ASC";
     }
 
-   
-
-
-
-
-
-
-
-
-
     try {
 
 
@@ -50,29 +40,52 @@ if (!isset($_SESSION["uid"])) {
             foreach ($pastRidesData as $row) {
 
                 $ride_id = $row["ride_ID"];
-                $driverQuery = "SELECT name FROM User JOIN Ride ON Ride.uid = User.uid AND Ride .ride_ID = $ride_id";
+                $driverQuery = "SELECT name,User.uid AS user_id FROM User JOIN Ride ON Ride.uid = User.uid AND Ride .ride_ID = $ride_id";
                 $resDriver = $db->query($driverQuery);
                 $driverData = $resDriver->fetch();
-
-               
-
-
+                $dateTimeFromDB = $row['dateTime'];
+                $date = new DateTime($dateTimeFromDB);
+                $dateCal = $date->format('l, F j');
+                $dateTime = $date->format('g:i A');
+                $cardTypeClass = ($driverData["user_id"] == $uid) ? "Driver" : "Passenger";
                 ?>
 
+
+
                 <article class="ride-card">
-                    <div class="ride-header">
-                        <p class="ride-date"><?= $row["dateTime"] ?></p>
-                        <h3 class="ride-destination">From Gettysburg College to
-                            <?= htmlspecialchars($row["destination"]) ?></h3>
-                            <p class="ride-driver"><strong>Posted By:</strong> <?=$driverData["name"]?></p>
-                    </div>
-                    <div class="ride-footer">
-                        <p><?= $row["available_seats"] ?> seats remaining</p>
-                        <a href="index.php?menu=searchdetail&tab=<?=$search_tab?>&ride_id=<?= $row["ride_ID"] ?>"
-                            class="read-more-link">
-                            View Details →
-                        </a>
-                    </div>
+                        <div class="stack <?= ($driverData["user_id"] == $uid) ? 'created-tag' : 'joined-tag' ?>"><?=$cardTypeClass?></div>
+                        <div class="ride-header">
+                            <p class="ride-date"><?= $dateCal ?>, <?= $dateTime ?></p>
+                            <h3 class="ride-destination">From Gettysburg College to
+                                <?= htmlspecialchars($row["destination"]) ?>
+                            </h3>
+                            <p class="ride-driver"><strong>Posted By:</strong>
+                                <?php
+
+                                if ($driverData["user_id"] == $uid) {
+                                    ?>
+                                    You
+
+                                    <?php
+                                } else {
+                                    ?>
+                                    <?= $driverData["name"] ?>
+                                    <?php
+                                }
+
+
+                                ?>
+
+
+                            </p>
+                        </div>
+                        <div class="ride-footer">
+                            <p><?= $row["available_seats"] ?> seats remaining</p>
+                            <a href="index.php?menu=searchdetail&tab=<?= $search_tab ?>&ride_id=<?= $row["ride_ID"] ?>"
+                                class="read-more-link">
+                                View Details →
+                            </a>
+                        </div>
                 </article>
                 <?php
             }
