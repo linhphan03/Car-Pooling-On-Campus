@@ -88,6 +88,7 @@
                 //refresh after unsetting uid, gives navbar time to switch to non-logged-in version
                 header("refresh:1;url=index.php");
                 unset($_SESSION['uid']);
+                unset($_SESSION['admin']);
                 break;
             case "fmRide":
             	  genRideForm($db);
