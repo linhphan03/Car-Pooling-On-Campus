@@ -1,4 +1,19 @@
-<!-- Prabesh Bista -->
+<!-- Fetch 4 most popular rides -->
+<?php
+include_once 'db_connect.php';
+
+try {
+    $stmt = $db->query("SELECT destination, COUNT(*) as count 
+                        FROM Ride 
+                        GROUP BY destination 
+                        ORDER BY count DESC 
+                        LIMIT 4");
+    $topDestinations = $stmt->fetchAll();
+} catch (PDOException $e) {
+    $topDestinations = [];
+}
+?>
+
 
 <!-- Main container split into two side-by-side columns -->
 <div class="main-content">
@@ -15,17 +30,16 @@
 
         <div class="ride-to-date-search">
             <form id="rideSearchForm" action="rides.php" method="GET">
-                
                 <!-- Ride To Section -->
                 <div class="ride-to-section">
                     <h2>Ride to</h2>
                     <input type="hidden" id="ride-to" name="ride-to" value="" />
-
                     <ul class="ride-to-list">
-                        <li onclick="selectRideTo('Target')">Target</li>
-                        <li onclick="selectRideTo('Walmart')">Walmart</li>
-                        <li onclick="selectRideTo('Dulles International Airport')">Dulles International Airport</li>
-                        <li onclick="selectRideTo('Washington DC')">Washington DC</li>
+                        <?php foreach ($topDestinations as $destination): ?>
+                            <li onclick="selectRideTo(this, '<?= htmlspecialchars($destination['destination']) ?>')">
+                                <?= htmlspecialchars($destination['destination']) ?>
+                            </li>
+                        <?php endforeach; ?>
                     </ul>
                 </div>
 
@@ -33,9 +47,9 @@
                 <div class="ride-date-filter">
                     <h2>Ride Date</h2>
                     <label for="from-date">From</label>
-                    <input type="date" id="from-date" name="from-date" required />
+                    <input type="date" id="from-date" name="from-date" />
                     <label for="to-date">To</label>
-                    <input type="date" id="to-date" name="to-date" required />
+                    <input type="date" id="to-date" name="to-date" />
                 </div>
 
                 <input type="submit" value="Search" class="date-search-btn" />
@@ -43,15 +57,41 @@
         </div>
 
         <script>
-            function selectRideTo(destination) {
-                document.getElementById('ride-to').value = destination;
+            function selectRideTo(el, destination) {
+                const hiddenInput = document.getElementById('ride-to');
+                const selected = document.querySelector('.ride-to-list li.selected');
 
-                // Highlight selected item (optional)
-                const items = document.querySelectorAll('.ride-to-list li');
-                items.forEach(item => item.classList.remove('selected'));
-                event.target.classList.add('selected');
+                if (el.classList.contains('selected')) {
+                    el.classList.remove('selected');
+                    hiddenInput.value = '';
+                    return;
+                }
+
+                if (selected) selected.classList.remove('selected');
+
+                el.classList.add('selected');
+                hiddenInput.value = destination;
             }
+
+            document.getElementById('rideSearchForm').addEventListener('submit', function (e) {
+                e.preventDefault(); // stop the form's default submission
+
+                const baseUrl = 'rides.php';
+                const params = new URLSearchParams();
+
+                const rideTo = document.getElementById('ride-to').value;
+                const fromDate = document.getElementById('from-date').value;
+                const toDate = document.getElementById('to-date').value;
+
+                if (rideTo) params.append('ride-to', rideTo);
+                if (fromDate) params.append('from-date', fromDate);
+                if (toDate) params.append('to-date', toDate);
+
+                const query = params.toString();
+                window.location.href = query ? `${baseUrl}?${query}` : baseUrl;
+            });
         </script>
+
     </div>
 
     <!-- RIGHT SIDE: Search Bar, Tabs & Ride Cards, Suggested Rides -->
@@ -104,18 +144,21 @@
                         $driverQuery = "SELECT name FROM User JOIN Ride ON Ride.uid = User.uid AND Ride .ride_ID = $ride_id";
                         $resDriver = $db->query($driverQuery);
                         $driverData = $resDriver->fetch();
-
-                       
-
-
                         ?>
 
                         <article class="ride-card">
                             <div class="ride-header">
-                                <p class="ride-date"><?= $row["dateTime"] ?></p>
+                                <p class="ride-date">
+                                    <?php
+                                        $date = new DateTime($row["dateTime"]);
+                                        $dateCal = $date->format('l, F j');
+                                        $dateTime = $date->format('g:i A');
+                                    ?>
+                                    <?= $dateCal ?>, <?= $dateTime ?>
+                                </p>
                                 <h3 class="ride-destination">From Gettysburg College to
                                     <?= htmlspecialchars($row["destination"]) ?></h3>
-                                    <p class="ride-driver"><strong>Posted By:</strong> <?=$driverData["name"]?></p>
+                                    <p class="ride-driver"><strong>Driver:</strong> <?=$driverData["name"]?></p>
                             </div>
                             <div class="ride-footer">
                                 <p><?= $row["available_seats"] ?> seats remaining</p>

@@ -59,7 +59,7 @@ if (!isset($_SESSION["uid"])) {
                             <h3 class="ride-destination">From Gettysburg College to
                                 <?= htmlspecialchars($row["destination"]) ?>
                             </h3>
-                            <p class="ride-driver"><strong>Posted By:</strong>
+                            <p class="ride-driver"><strong>Driver:</strong>
                                 <?php
 
                                 if ($driverData["user_id"] == $uid) {

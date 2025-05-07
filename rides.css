@@ -72,7 +72,13 @@ body {
     font-weight: 500;
     color: #555;
 }
-  
+
+.ride-driver {
+    font-size: 0.9rem;
+    color: #666;
+    margin-top: 0.5rem;
+}
+
 .read-more-link {
     background-color: #007bff;
     color: #fff;

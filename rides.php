@@ -1,4 +1,6 @@
+<!-- Search for rides based on field, excluding driver's -->
 <?php
+session_start();
 ini_set('display_errors', 1);
 ini_set('display_startup_errors', 1);
 error_reporting(E_ALL);
@@ -7,51 +9,60 @@ include_once 'db_connect.php';
 
 $rides = [];
 $title = "";
+$today = date('Y-m-d H:i:s');
+
+$currentUserId = $_SESSION['uid'] ?? null;
+
+if (!$currentUserId) {
+    echo "<p style='color: red;'>You must be logged in to view rides.</p>";
+    exit;
+}
+
+// Get filters
+$rideTo   = $_GET['ride-to'] ?? null;
+$fromDate = $_GET['from-date'] ?? null;
+$toDate   = $_GET['to-date'] ?? null;
 
 try {
-    if (!empty($_GET['ride-to'])) {
-        $destination = $_GET['ride-to'];
-        $fromDate = $_GET['from-date'] ?? null;
-        $toDate = $_GET['to-date'] ?? null;
+    // Base query and params
+    $sql = "SELECT ride_ID, destination, available_seats, dateTime, uid 
+            FROM Ride 
+            WHERE dateTime >= :today AND uid != :currentUserId";
+    $params = [
+        ':today' => $today,
+        ':currentUserId' => $currentUserId
+    ];
 
-        // Default title
-        $title = "Rides to " . htmlspecialchars($destination);
+    $titleParts = [];
 
-        if (!empty($fromDate) && !empty($toDate)) {
-            $title .= " from " . htmlspecialchars($fromDate) . " to " . htmlspecialchars($toDate);
-
-            $stmt = $db->prepare("SELECT ride_ID, destination, available_seats, dateTime, uid 
-                                  FROM Ride 
-                                  WHERE destination = :destination 
-                                    AND dateTime BETWEEN :fromDate AND :toDate 
-                                  ORDER BY dateTime ASC");
-
-            $stmt->execute([
-                ':destination' => $destination,
-                ':fromDate' => $fromDate,
-                ':toDate' => $toDate
-            ]);
-        } else {
-            // If no date filters, show future rides only
-            $now = date('Y-m-d H:i:s');
-
-            $stmt = $db->prepare("SELECT ride_ID, destination, available_seats, dateTime, uid 
-                                  FROM Ride 
-                                  WHERE destination = :destination 
-                                    AND dateTime > :now
-                                  ORDER BY dateTime ASC");
-
-            $stmt->execute([
-                ':destination' => $destination,
-                ':now' => $now
-            ]);
-        }
-
-        $rides = $stmt->fetchAll();
-    } else {
-        echo "<p style='color: red;'>Please select a destination to search for rides.</p>";
-        exit;
+    if (!empty($rideTo)) {
+        $sql .= " AND destination = :destination";
+        $params[':destination'] = $rideTo;
+        $titleParts[] = "to " . htmlspecialchars($rideTo);
     }
+
+    if (!empty($fromDate)) {
+        $sql .= " AND dateTime >= :fromDate";
+        $params[':fromDate'] = $fromDate;
+        $titleParts[] = "starting from " . htmlspecialchars($fromDate);
+    }
+
+    if (!empty($toDate)) {
+        $sql .= " AND dateTime <= :toDate";
+        $params[':toDate'] = $toDate;
+        $titleParts[] = "until " . htmlspecialchars($toDate);
+    }
+
+    $sql .= " ORDER BY dateTime ASC";
+
+    // Title formatting
+    $title = empty($titleParts) ? "All upcoming rides" : "Rides " . implode(' ', $titleParts);
+
+    // Execute
+    $stmt = $db->prepare($sql);
+    $stmt->execute($params);
+    $rides = $stmt->fetchAll();
+
 } catch (PDOException $e) {
     echo "<p style='color: red;'>Error querying rides: " . htmlspecialchars($e->getMessage()) . "</p>";
     exit;
@@ -88,9 +99,17 @@ try {
 
                     <article class="ride-card">
                         <div class="ride-header">
-                            <p class="ride-date"><?= date('m/d/Y g:i A', strtotime($ride["dateTime"])) ?></p>
+                            <p class="ride-date">
+                                <?php
+                                    $date = new DateTime($ride["dateTime"]);
+                                    $dateCal = $date->format('l, F j');
+                                    $dateTime = $date->format('g:i A');
+                                ?>
+                                <?= $dateCal ?>, <?= $dateTime ?>
+                            </p>
+                            
                             <h3 class="ride-destination">From Gettysburg College to <?= htmlspecialchars($ride["destination"]) ?></h3>
-                            <p class="ride-driver"><strong>Posted By:</strong> <?= htmlspecialchars($driverData["name"] ?? "Unknown") ?></p>
+                            <p class="ride-driver"><strong>Driver:</strong> <?= htmlspecialchars($driverData["name"] ?? "Unknown") ?></p>
                         </div>
                         <div class="ride-footer">
                             <p><?= htmlspecialchars($ride["available_seats"]) ?> seats remaining</p>
