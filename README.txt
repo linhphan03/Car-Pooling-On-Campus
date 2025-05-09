@@ -55,7 +55,16 @@ Functionalities Completed By Each Member:
 	- Ride Search page
 	
 	Prabesh Bista:
-	- 
+	- dashboard
+		- shows upcoming and past rides, upcoming suggested rides
+		- visual distinction betweeen driver and passenger rides
+		- search bar on top to search for rides by destination
+	- view details: cancel ride/booking, driver and ride info
+		- ability to review users once a ride has completed
+		- if driver, shows info about passengers who booked
+			- driver can cancel ride from here
+		- if passenger, shows info about the driver
+	- navbar basic functionality and display
 
 	Spencer Hagan:
 	- Form to create a new ride
@@ -74,3 +83,4 @@ Functionalities Completed By Each Member:
 		- Add and delete payment types
 		- Add and delete cars
 	- Admin access to any user's profile page
+	- navbar changes based on status (logged-in, admin)
